@@ -103,6 +103,11 @@
   font-weight: 700;
 }
 
+.no-time-hint {
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
 .work-order-meta {
   display: flex;
   flex-wrap: wrap;

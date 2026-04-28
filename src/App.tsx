@@ -1,19 +1,27 @@
 import { useState } from 'react';
-import type { WorkOrder, Assignment } from './types';
-import { currentUser, personnel, initialWorkOrders, initialAssignments } from './data/mockData';
+import type { WorkOrder, Assignment, Personnel, User } from './types';
+import { currentUser, personnel as initialPersonnel, initialWorkOrders, initialAssignments } from './data/mockData';
+import NavRail, { type Page } from './components/NavRail';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import Calendar from './components/Calendar';
 import WorkOrderModal from './components/WorkOrderModal';
+import PersonnelPage from './components/PersonnelPage';
+import ReportsPage from './components/ReportsPage';
+import SettingsPage from './components/SettingsPage';
+import WorkOrdersPage from './components/WorkOrdersPage';
 import { motion } from 'framer-motion';
 import './App.css';
 
 function App() {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(initialWorkOrders);
   const [assignments, setAssignments] = useState<Assignment[]>(initialAssignments);
+  const [personnelList, setPersonnelList] = useState<Personnel[]>(initialPersonnel);
+  const [user, setUser] = useState<User>(currentUser);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingWorkOrder, setEditingWorkOrder] = useState<WorkOrder | null>(null);
+  const [activePage, setActivePage] = useState<Page>('calendar');
 
   const handleCreateWorkOrder = () => {
     setEditingWorkOrder(null);
@@ -28,11 +36,11 @@ function App() {
     }
     setIsModalOpen(false);
   };
+
   const handleAssignWorkOrder = (workOrder: WorkOrder | Assignment, personnelId: string, startHour: number) => {
     const currentDateStr = currentDate.toISOString().split('T')[0];
     const duration = workOrder.duration;
-    
-    // Check for conflicts
+
     const hasConflict = assignments.some(a => {
       if (a.personnelId !== personnelId || a.date !== currentDateStr) return false;
       const endHour = startHour + duration;
@@ -45,7 +53,6 @@ function App() {
       return;
     }
 
-    // Handle reassignment
     if ('workOrderId' in workOrder) {
       setAssignments(assignments.filter(a => a.id !== workOrder.id));
     }
@@ -65,10 +72,9 @@ function App() {
 
     setAssignments([...assignments, newAssignment]);
 
-    // Update work order status
     if (!('workOrderId' in workOrder)) {
-      setWorkOrders(workOrders.map(wo => 
-        wo.id === workOrder.id 
+      setWorkOrders(workOrders.map(wo =>
+        wo.id === workOrder.id
           ? { ...wo, status: 'assigned' as const, assignedTo: personnelId, plannedDate: currentDateStr, startHour }
           : wo
       ));
@@ -86,36 +92,84 @@ function App() {
     ));
   };
 
+  const renderPage = () => {
+    switch (activePage) {
+      case 'calendar':
+        return (
+          <>
+            <Sidebar
+              user={user}
+              workOrders={workOrders}
+              assignments={assignments}
+              personnel={personnelList}
+              onRemoveAssignment={handleRemoveAssignment}
+            />
+            <div className="main-content">
+              <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
+              <Calendar
+                personnel={personnelList}
+                assignments={assignments}
+                currentDate={currentDate}
+                onDateChange={setCurrentDate}
+                onAssign={handleAssignWorkOrder}
+                onRemoveAssignment={handleRemoveAssignment}
+              />
+            </div>
+          </>
+        );
+      case 'workorders':
+        return (
+          <div className="main-content">
+            <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
+            <WorkOrdersPage
+              workOrders={workOrders}
+              assignments={assignments}
+              personnel={personnelList}
+              onCreateWorkOrder={handleCreateWorkOrder}
+              onRemoveAssignment={handleRemoveAssignment}
+            />
+          </div>
+        );
+      case 'personnel':
+        return (
+          <div className="main-content">
+            <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
+            <PersonnelPage
+              personnel={personnelList}
+              onAdd={p => setPersonnelList(prev => [...prev, p])}
+              onUpdate={p => setPersonnelList(prev => prev.map(x => x.id === p.id ? p : x))}
+              onDelete={id => setPersonnelList(prev => prev.filter(x => x.id !== id))}
+            />
+          </div>
+        );
+      case 'reports':
+        return (
+          <div className="main-content">
+            <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
+            <ReportsPage workOrders={workOrders} assignments={assignments} personnel={personnelList} />
+          </div>
+        );
+      case 'settings':
+        return (
+          <div className="main-content">
+            <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
+            <SettingsPage user={user} onUpdateUser={setUser} />
+          </div>
+        );
+    }
+  };
+
   return (
-    <motion.div 
+    <motion.div
       className="app-container"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.4 }}
     >
-      <Sidebar 
-        user={currentUser}
-        workOrders={workOrders}
-        assignments={assignments}
-        personnel={personnel}
-        onRemoveAssignment={handleRemoveAssignment}
-      />
-      <div className="main-content">
-        <TopBar 
-          onCreateWorkOrder={handleCreateWorkOrder}
-          onRefresh={() => window.location.reload()}
-        />
-        <Calendar 
-          personnel={personnel}
-          assignments={assignments}
-          currentDate={currentDate}
-          onDateChange={setCurrentDate}
-          onAssign={handleAssignWorkOrder}
-          onRemoveAssignment={handleRemoveAssignment}
-        />
-      </div>
+      <NavRail activePage={activePage} onNavigate={setActivePage} />
+      {renderPage()}
       {isModalOpen && (
-        <WorkOrderModal 
+        <WorkOrderModal
           workOrder={editingWorkOrder}
           onSave={handleSaveWorkOrder}
           onClose={() => setIsModalOpen(false)}

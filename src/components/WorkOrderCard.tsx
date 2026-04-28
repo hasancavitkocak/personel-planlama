@@ -48,7 +48,10 @@ export default function WorkOrderCard({ order, index }: WorkOrderCardProps) {
           {/* Duration pill */}
           <div className="duration-pill">
             <Clock size={11} />
-            Tahmini süre: <strong>{order.duration} saat</strong>
+            {order.startHour !== null
+              ? <><strong>{String(order.startHour).padStart(2,'0')}:00 – {String(order.startHour + order.duration).padStart(2,'0')}:00</strong> · {order.duration} saat</>
+              : <>Süre: <strong>{order.duration} saat</strong> · <span className="no-time-hint">saat belirlenmedi</span></>
+            }
           </div>
 
           <div className="work-order-meta">

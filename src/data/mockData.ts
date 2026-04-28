@@ -21,13 +21,13 @@ export const initialWorkOrders: WorkOrder[] = [
     id: "WO-2024-001", title: "Pompa Bakımı", description: "P-101 santrifüj pompa periyodik bakımı",
     priority: "high", status: "unassigned", duration: 4, requiredSkill: "Mekanik",
     location: "Üretim Sahası A", plannedDate: null, assignedTo: null,
-    startHour: null, equipment: "P-101", orderType: "PM01"
+    startHour: 8, equipment: "P-101", orderType: "PM01"
   },
   {
     id: "WO-2024-002", title: "Elektrik Pano Kontrolü", description: "MCC-05 motor kontrol merkezi bakımı",
     priority: "critical", status: "unassigned", duration: 3, requiredSkill: "Elektrik",
     location: "Elektrik Odası", plannedDate: null, assignedTo: null,
-    startHour: null, equipment: "MCC-05", orderType: "PM02"
+    startHour: 10, equipment: "MCC-05", orderType: "PM02"
   },
   {
     id: "WO-2024-003", title: "Vana Değişimi", description: "V-203 kontrol vanası değişimi",
@@ -39,7 +39,7 @@ export const initialWorkOrders: WorkOrder[] = [
     id: "WO-2024-004", title: "PLC Yazılım Güncelleme", description: "Siemens S7-1500 firmware güncellemesi",
     priority: "medium", status: "unassigned", duration: 5, requiredSkill: "PLC",
     location: "Kontrol Odası", plannedDate: null, assignedTo: null,
-    startHour: null, equipment: "PLC-01", orderType: "PM03"
+    startHour: 13, equipment: "PLC-01", orderType: "PM03"
   },
   {
     id: "WO-2024-005", title: "Kompresör Yağ Değişimi", description: "K-301 hava kompresörü yağ değişimi",
@@ -64,6 +64,36 @@ export const initialWorkOrders: WorkOrder[] = [
     priority: "high", status: "unassigned", duration: 8, requiredSkill: "Elektrik",
     location: "Makine Dairesi", plannedDate: null, assignedTo: null,
     startHour: null, equipment: "M-501", orderType: "PM01"
+  },
+  {
+    id: "WO-2024-009", title: "Trafo Bakımı", description: "TR-01 güç trafosu periyodik bakımı",
+    priority: "high", status: "assigned", duration: 3, requiredSkill: "Elektrik",
+    location: "Trafo Merkezi", plannedDate: new Date().toISOString().split('T')[0], assignedTo: "P001",
+    startHour: 8, equipment: "TR-01", orderType: "PM02"
+  },
+  {
+    id: "WO-2024-010", title: "Redüktör Bakımı", description: "RD-02 dişli redüktör yağ ve rulman kontrolü",
+    priority: "medium", status: "assigned", duration: 4, requiredSkill: "Mekanik",
+    location: "Üretim Hattı 2", plannedDate: new Date().toISOString().split('T')[0], assignedTo: "P002",
+    startHour: 9, equipment: "RD-02", orderType: "PM01"
+  },
+  {
+    id: "WO-2024-011", title: "Transmitter Bakımı", description: "PT-201 basınç transmitteri kalibrasyon ve bakımı",
+    priority: "low", status: "assigned", duration: 2, requiredSkill: "Enstrümantasyon",
+    location: "Proses Alanı B", plannedDate: new Date().toISOString().split('T')[0], assignedTo: "P003",
+    startHour: 13, equipment: "PT-201", orderType: "PM02"
+  },
+  {
+    id: "WO-2024-012", title: "Kablo Döşeme", description: "KBL-03 güç kablosu yenileme çalışması",
+    priority: "medium", status: "assigned", duration: 5, requiredSkill: "Elektrik",
+    location: "Kablo Kanalı C", plannedDate: new Date().toISOString().split('T')[0], assignedTo: "P004",
+    startHour: 10, equipment: "KBL-03", orderType: "PM03"
+  },
+  {
+    id: "WO-2024-013", title: "Otomasyon Testi", description: "AUTO-01 otomasyon sistemi fonksiyon testi",
+    priority: "high", status: "assigned", duration: 4, requiredSkill: "Otomasyon",
+    location: "Kontrol Odası", plannedDate: new Date().toISOString().split('T')[0], assignedTo: "P005",
+    startHour: 7, equipment: "AUTO-01", orderType: "PM03"
   }
 ];
 
