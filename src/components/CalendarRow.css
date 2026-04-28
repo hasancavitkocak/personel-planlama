@@ -1,0 +1,87 @@
+.calendar-row {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  min-height: 72px;
+  transition: background 0.15s;
+}
+
+.calendar-row:last-child {
+  border-bottom: none;
+}
+
+.calendar-row:hover {
+  background: #FAFBFF;
+}
+
+.calendar-row.drag-over {
+  background: #EFF6FF;
+  outline: 2px dashed #93C5FD;
+  outline-offset: -2px;
+}
+
+.row-personnel {
+  width: 200px;
+  padding: 12px 16px;
+  border-right: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #FAFBFC;
+  flex-shrink: 0;
+}
+
+.personnel-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.personnel-info h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.personnel-info p {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.row-timeline {
+  flex: 1;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+}
+
+.timeline-cell {
+  border-right: 1px solid #F1F5F9;
+  position: relative;
+}
+
+.timeline-cell:nth-child(8),
+.timeline-cell:nth-child(17) {
+  border-right: 1px solid var(--border);
+}
+
+/* Work hours highlight (8-17) */
+.timeline-cell:nth-child(n+9):nth-child(-n+17) {
+  background: rgba(37, 99, 235, 0.02);
+}
