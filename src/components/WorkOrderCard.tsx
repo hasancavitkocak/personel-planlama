@@ -45,7 +45,11 @@ export default function WorkOrderCard({ order, index }: WorkOrderCardProps) {
           <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <FlexBox justifyContent="SpaceBetween" alignItems="Center">
               <span style={{ fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)', fontWeight: 'bold' }}>{order.id}</span>
-              <Tag colorScheme={priorityScheme[order.priority]}>
+              <Tag 
+                colorScheme={priorityScheme[order.priority]} 
+                hideStateIcon
+                className={`priority-tag-${order.priority}`}
+              >
                 {priorityLabels[order.priority]}
               </Tag>
             </FlexBox>

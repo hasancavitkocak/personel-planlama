@@ -44,7 +44,7 @@ export default function WorkOrdersPage({ workOrders, assignments, personnel, onC
                 <Icon name="message-information" style={{ color: 'var(--sapNegativeElementColor)', width: '16px', height: '16px' }} />
                 <span>Atanmamış</span>
               </FlexBox>
-              <Tag colorScheme="1">{unassigned.length}</Tag>
+              <Tag colorScheme="1" hideStateIcon>{unassigned.length}</Tag>
             </FlexBox>
             <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '70vh', overflowY: 'auto' }}>
               {unassigned.length === 0 ? (
@@ -64,7 +64,7 @@ export default function WorkOrdersPage({ workOrders, assignments, personnel, onC
                 <Icon name="activity-items" style={{ color: 'var(--sapSelectedColor)', width: '16px', height: '16px' }} />
                 <span>Atanmış</span>
               </FlexBox>
-              <Tag colorScheme="6">{assigned.length}</Tag>
+              <Tag colorScheme="6" hideStateIcon>{assigned.length}</Tag>
             </FlexBox>
             <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '70vh', overflowY: 'auto' }}>
               {assigned.length === 0 ? (
@@ -81,7 +81,7 @@ export default function WorkOrdersPage({ workOrders, assignments, personnel, onC
                         <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                           <FlexBox justifyContent="SpaceBetween" alignItems="Center">
                             <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--sapContent_LabelColor)' }}>{order.id}</span>
-                            <Tag colorScheme="6">Atanmış</Tag>
+                            <Tag colorScheme="6" hideStateIcon>Atanmış</Tag>
                           </FlexBox>
                           <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--sapTextColor)' }}>{order.title}</span>
                           <FlexBox wrap="Wrap" style={{ gap: '12px', borderTop: '1px solid var(--sapList_BorderColor)', paddingTop: '8px', fontSize: '0.8rem', color: 'var(--sapContent_LabelColor)' }}>
@@ -123,7 +123,7 @@ export default function WorkOrdersPage({ workOrders, assignments, personnel, onC
                 <Icon name="calendar" style={{ color: 'var(--sapSuccessColor)', width: '16px', height: '16px' }} />
                 <span>Takvim Atamaları</span>
               </FlexBox>
-              <Tag colorScheme="3">{assignments.length}</Tag>
+              <Tag colorScheme="3" hideStateIcon>{assignments.length}</Tag>
             </FlexBox>
             <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '70vh', overflowY: 'auto' }}>
               {assignments.length === 0 ? (

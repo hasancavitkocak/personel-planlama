@@ -14,6 +14,32 @@ import PlanningPage from './components/PlanningPage';
 import { motion } from 'framer-motion';
 import './App.css';
 
+// Global UI5 Icons Registration
+import '@ui5/webcomponents-icons/dist/add.js';
+import '@ui5/webcomponents-icons/dist/save.js';
+import '@ui5/webcomponents-icons/dist/delete.js';
+import '@ui5/webcomponents-icons/dist/edit.js';
+import '@ui5/webcomponents-icons/dist/play.js';
+import '@ui5/webcomponents-icons/dist/employee.js';
+import '@ui5/webcomponents-icons/dist/calendar.js';
+import '@ui5/webcomponents-icons/dist/group.js';
+import '@ui5/webcomponents-icons/dist/manager.js';
+import '@ui5/webcomponents-icons/dist/action-settings.js';
+import '@ui5/webcomponents-icons/dist/activity-items.js';
+import '@ui5/webcomponents-icons/dist/date-time.js';
+import '@ui5/webcomponents-icons/dist/message-information.js';
+import '@ui5/webcomponents-icons/dist/time-entry-request.js';
+import '@ui5/webcomponents-icons/dist/decline.js';
+import '@ui5/webcomponents-icons/dist/accept.js';
+import '@ui5/webcomponents-icons/dist/refresh.js';
+import '@ui5/webcomponents-icons/dist/wrench.js';
+import '@ui5/webcomponents-icons/dist/product.js';
+import '@ui5/webcomponents-icons/dist/locate-me.js';
+import '@ui5/webcomponents-icons/dist/slim-arrow-left.js';
+import '@ui5/webcomponents-icons/dist/slim-arrow-right.js';
+import '@ui5/webcomponents-icons/dist/sys-enter-2.js';
+import '@ui5/webcomponents-icons/dist/arrow-right.js';
+
 
 function App() {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(initialWorkOrders);

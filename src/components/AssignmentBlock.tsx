@@ -99,7 +99,11 @@ export default function AssignmentBlock({ assignment }: AssignmentBlockProps) {
           >
             <div className="tooltip-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <span className="tooltip-title" style={{ fontSize: '0.85rem', color: 'var(--sapTextColor)', fontWeight: 'bold' }}>{assignment.title}</span>
-              <Tag colorScheme={priorityScheme[assignment.priority]}>
+              <Tag 
+                colorScheme={priorityScheme[assignment.priority]} 
+                hideStateIcon
+                className={`priority-tag-${assignment.priority}`}
+              >
                 {priorityLabels[assignment.priority]}
               </Tag>
             </div>

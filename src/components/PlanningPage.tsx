@@ -652,7 +652,7 @@ export default function PlanningPage({
                     <div className="calendar-name">{c.name}</div>
                     <div className="calendar-dates">{c.startDate} - {c.endDate}</div>
                   </div>
-                  <Tag colorScheme="8">{c.workOrderIds.length} İş</Tag>
+                  <Tag colorScheme="8" hideStateIcon>{c.workOrderIds.length} İş</Tag>
                 </div>
               ))
             )}
@@ -1041,7 +1041,7 @@ export default function PlanningPage({
             <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
               Otomatik Planlama Sonucu
             </span>
-            <Tag colorScheme="8">Başarılı</Tag>
+            <Tag colorScheme="8" hideStateIcon>Başarılı</Tag>
           </div>
 
           <div className="results-grid">
@@ -1367,7 +1367,7 @@ export default function PlanningPage({
                 <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
                   Otomatik Planlama Sonucu
                 </span>
-                <Tag colorScheme="8">Başarılı</Tag>
+                <Tag colorScheme="8" hideStateIcon>Başarılı</Tag>
               </div>
 
               {planningPreview && (

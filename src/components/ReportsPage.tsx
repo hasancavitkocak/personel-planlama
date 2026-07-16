@@ -285,7 +285,7 @@ export default function ReportsPage({ workOrders, assignments, personnel }: Repo
                     </FlexBox>
                     <FlexBox alignItems="Baseline" style={{ gap: '8px', marginTop: '8px' }}>
                       <span style={{ fontSize: '1.6rem', fontWeight: 'bold', color: 'var(--sapTextColor)' }}>{s.value}</span>
-                      {s.scheme !== 'None' && <Tag colorScheme={s.scheme}>Durum</Tag>}
+                      {s.scheme !== 'None' && <Tag colorScheme={s.scheme} hideStateIcon>Durum</Tag>}
                     </FlexBox>
                   </FlexBox>
                 </Card>
@@ -733,7 +733,7 @@ export default function ReportsPage({ workOrders, assignments, personnel }: Repo
                           </div>
                           <div style={{ display: 'flex', gap: '6px', marginTop: '10px', flexWrap: 'wrap' }}>
                             {selectedPerson.skills.map(s => (
-                              <Tag key={s} colorScheme="4" style={{ fontSize: '10px' }}>{s}</Tag>
+                              <Tag key={s} colorScheme="4" style={{ fontSize: '10px' }} hideStateIcon>{s}</Tag>
                             ))}
                           </div>
                         </div>

@@ -62,3 +62,37 @@ body {
 ui5-shellbar {
   padding-left: 8px !important;
 }
+
+/* Hide default state icons inside UI5 tag components globally */
+ui5-tag::part(icon) {
+  display: none !important;
+}
+
+/* Priority Tag Custom Coloring using CSS Parts */
+ui5-tag.priority-tag-low::part(root) {
+  background: #EBFDF4 !important;
+  color: #10B981 !important;
+  border: 1px solid #A7F3D0 !important;
+  font-weight: bold !important;
+}
+
+ui5-tag.priority-tag-medium::part(root) {
+  background: #FFF7ED !important;
+  color: #F97316 !important;
+  border: 1px solid #FFEDD5 !important;
+  font-weight: bold !important;
+}
+
+ui5-tag.priority-tag-high::part(root) {
+  background: #FEF2F2 !important;
+  color: #EF4444 !important;
+  border: 1px solid #FEE2E2 !important;
+  font-weight: bold !important;
+}
+
+ui5-tag.priority-tag-critical::part(root) {
+  background: #FDF2F8 !important;
+  color: #EC4899 !important;
+  border: 1px solid #FCE7F3 !important;
+  font-weight: bold !important;
+}

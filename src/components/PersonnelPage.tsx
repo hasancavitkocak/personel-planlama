@@ -100,7 +100,7 @@ export default function PersonnelPage({ personnel, onAdd, onUpdate, onDelete }: 
 
                 <FlexBox wrap="Wrap" style={{ gap: '6px', minHeight: '30px' }}>
                   {p.skills.map(s => (
-                    <Tag key={s} colorScheme="6">{s}</Tag>
+                    <Tag key={s} colorScheme="6" hideStateIcon>{s}</Tag>
                   ))}
                 </FlexBox>
 
@@ -199,6 +199,7 @@ export default function PersonnelPage({ personnel, onAdd, onUpdate, onDelete }: 
                     colorScheme="6"
                     style={{ cursor: 'pointer' }}
                     onClick={() => removeSkill(s)}
+                    hideStateIcon
                   >
                     {s} ✕
                   </Tag>

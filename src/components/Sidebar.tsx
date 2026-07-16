@@ -121,7 +121,7 @@ export default function Sidebar({
             <Icon name="activity-items" style={{ width: '14px', height: '14px' }} />
             <span>{activeCal ? `${activeCal.name} İşleri` : 'Atanmamış İş Emirleri'}</span>
           </FlexBox>
-          <Tag colorScheme="6">{unassignedOrders.length}</Tag>
+          <Tag colorScheme="6" hideStateIcon>{unassignedOrders.length}</Tag>
         </FlexBox>
 
         <AnimatePresence>

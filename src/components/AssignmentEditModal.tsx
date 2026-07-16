@@ -43,7 +43,11 @@ export default function AssignmentEditModal({ assignment, onSave, onClose }: Ass
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '8px' }}>
         <FlexBox justifyContent="SpaceBetween" alignItems="Center">
           <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--sapTextColor)' }}>{assignment.title}</span>
-          <Tag colorScheme={priorityScheme[assignment.priority]}>
+          <Tag 
+            colorScheme={priorityScheme[assignment.priority]} 
+            hideStateIcon
+            className={`priority-tag-${assignment.priority}`}
+          >
             {priorityLabels[assignment.priority]}
           </Tag>
         </FlexBox>
