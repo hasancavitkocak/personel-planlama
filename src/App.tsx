@@ -183,7 +183,7 @@ function App() {
         return (
           <div className="main-content">
             <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
-            <ReportsPage workOrders={workOrders} assignments={assignments} personnel={personnelList} />
+            <ReportsPage workOrders={workOrders} assignments={assignments} personnel={personnelList} calendars={calendars} />
           </div>
         );
       case 'settings':

@@ -66,11 +66,7 @@ export default function PersonnelPage({ personnel, onAdd, onUpdate, onDelete }: 
 
   return (
     <div className="personnel-page" style={{ backgroundColor: 'var(--sapBackgroundColor)', padding: '20px 24px', flex: 1, overflowY: 'auto' }}>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <div>
-          <h2 style={{ color: 'var(--sapTextColor)', margin: 0 }}>Personel Yönetimi</h2>
-          <p style={{ color: 'var(--sapContent_LabelColor)', margin: '4px 0 0 0' }}>{personnel.length} personel kayıtlı</p>
-        </div>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '16px' }}>
         <Button design="Emphasized" icon="add" onClick={openAdd}>Personel Ekle</Button>
       </div>
 

@@ -58,6 +58,24 @@ export default function PlanningPage({
     P006: 58
   });
 
+  const getCalendarTotalHours = (c: PlanningCalendar) => {
+    const calWorkOrders = workOrders.filter(wo => c.workOrderIds.includes(wo.id));
+    return calWorkOrders.reduce((sum, wo) => sum + wo.duration, 0);
+  };
+
+  const getCalendarTotalCapacity = (c: PlanningCalendar) => {
+    try {
+      const start = new Date(c.startDate + 'T00:00:00');
+      const end = new Date(c.endDate + 'T00:00:00');
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      const dailyTotalCapacity = personnel.reduce((sum, p) => sum + (p.capacity || 8), 0);
+      return diffDays * dailyTotalCapacity;
+    } catch (e) {
+      return 0;
+    }
+  };
+
   // Manual assignment dialog states
   const [isManualDialogOpen, setIsManualDialogOpen] = useState(false);
   const [manualWoId, setManualWoId] = useState<string | null>(null);
@@ -568,13 +586,7 @@ export default function PlanningPage({
 
   return (
     <div className="planning-page-container">
-      {/* Page Header */}
-      <div className="planning-header">
-        <div>
-          <h2>Takvim Bazlı Personel Planlama</h2>
-          <p>Tanımlı takvimler oluşturun, işleri takvimlere atayın ve personel doluluk oranlarına göre dengeli planlama yapın.</p>
-        </div>
-      </div>
+
 
       {/* Row 1: Calendar Definition & Selection and Work Selection */}
       <div className="planning-top-grid">
@@ -652,7 +664,12 @@ export default function PlanningPage({
                     <div className="calendar-name">{c.name}</div>
                     <div className="calendar-dates">{c.startDate} - {c.endDate}</div>
                   </div>
-                  <Tag colorScheme="8" hideStateIcon>{c.workOrderIds.length} İş</Tag>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                    <Tag colorScheme="8" hideStateIcon>{c.workOrderIds.length} İş</Tag>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--sapContent_LabelColor)', whiteSpace: 'nowrap' }}>
+                      Yük: {getCalendarTotalHours(c)} sa / Kap: {getCalendarTotalCapacity(c)} sa
+                    </span>
+                  </div>
                 </div>
               ))
             )}
@@ -696,7 +713,12 @@ export default function PlanningPage({
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 {/* Left Table: Open/Açık İşler */}
                 <div>
-                  <Label style={{ fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>Açık Olan İşler</Label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <Label style={{ fontWeight: 'bold' }}>Açık Olan İşler</Label>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--sapContent_LabelColor)', fontWeight: 'bold' }}>
+                      Toplam: {filteredOpenWorkOrders.reduce((sum, wo) => sum + wo.duration, 0)}s
+                    </span>
+                  </div>
                   <div className="table-container">
                     <table className="planning-table">
                       <thead>
@@ -758,7 +780,12 @@ export default function PlanningPage({
 
                 {/* Right Table: Selected Calendar Works */}
                 <div>
-                  <Label style={{ fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>Takvime Eklenen İşler</Label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <Label style={{ fontWeight: 'bold' }}>Takvime Eklenen İşler</Label>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--sapContent_LabelColor)', fontWeight: 'bold' }}>
+                      Toplam: {calendarSelectedWorkOrders.reduce((sum, wo) => sum + wo.duration, 0)}s
+                    </span>
+                  </div>
                   <div className="table-container">
                     <table className="planning-table">
                       <thead>

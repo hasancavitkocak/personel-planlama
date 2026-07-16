@@ -29,10 +29,7 @@ export default function SettingsPage({ user, onUpdateUser }: SettingsPageProps) 
 
   return (
     <div className="settings-page" style={{ backgroundColor: 'var(--sapBackgroundColor)', padding: '20px 24px', flex: 1, overflowY: 'auto' }}>
-      <div className="page-header" style={{ marginBottom: '24px' }}>
-        <h2 style={{ color: 'var(--sapTextColor)', margin: 0 }}>Ayarlar</h2>
-        <p style={{ color: 'var(--sapContent_LabelColor)', margin: '4px 0 0 0' }}>Uygulama ve profil ayarları</p>
-      </div>
+
 
       <div className="settings-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
         {/* Profile */}

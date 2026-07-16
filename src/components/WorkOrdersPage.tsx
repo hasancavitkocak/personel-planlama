@@ -27,11 +27,7 @@ export default function WorkOrdersPage({ workOrders, assignments, personnel, onC
 
   return (
     <div className="workorders-page" style={{ backgroundColor: 'var(--sapBackgroundColor)', padding: '20px 24px', flex: 1, overflowY: 'auto' }}>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <div>
-          <h2 style={{ color: 'var(--sapTextColor)', margin: 0 }}>İş Emirleri</h2>
-          <p style={{ color: 'var(--sapContent_LabelColor)', margin: '4px 0 0 0' }}>{workOrders.length} iş emri · {assignments.length} atama</p>
-        </div>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '16px' }}>
         <Button design="Emphasized" icon="add" onClick={onCreateWorkOrder}>Yeni İş Emri</Button>
       </div>
 

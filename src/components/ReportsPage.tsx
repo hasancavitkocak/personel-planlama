@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { WorkOrder, Assignment, Personnel } from '../types';
+import type { WorkOrder, Assignment, Personnel, PlanningCalendar } from '../types';
 import { Card, Tag, Icon, FlexBox, Avatar } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/activity-items.js';
 import '@ui5/webcomponents-icons/dist/message-information.js';
@@ -16,6 +16,7 @@ interface ReportsPageProps {
   workOrders: WorkOrder[];
   assignments: Assignment[];
   personnel: Personnel[];
+  calendars: PlanningCalendar[];
 }
 
 const priorityLabels: Record<string, string> = { critical: 'Kritik', high: 'Yüksek', medium: 'Orta', low: 'Düşük' };
@@ -69,32 +70,29 @@ const getMonthOptions = () => {
   return options;
 };
 
-export default function ReportsPage({ workOrders, assignments, personnel }: ReportsPageProps) {
+export default function ReportsPage({ workOrders, assignments, personnel, calendars }: ReportsPageProps) {
   const [activeTab, setActiveTab] = useState<'calendar' | 'personnel'>('calendar');
   const [selectedPersonnelId, setSelectedPersonnelId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [timeFilter, setTimeFilter] = useState<'daily' | 'weekly' | 'monthly'>('daily');
-  const [selectedMonthFilter, setSelectedMonthFilter] = useState<string>('all');
+  const [selectedCalendarIdFilter, setSelectedCalendarIdFilter] = useState<string>('all');
   const [selectedDayFilter, setSelectedDayFilter] = useState<string>('all');
   const [selectedWeekFilter, setSelectedWeekFilter] = useState<string>('all');
 
-  const monthOptions = getMonthOptions();
+  const activeCalendar = calendars.find(c => c.id === selectedCalendarIdFilter);
 
-  // Filter assignments based on month selection
+  // Filter assignments based on calendar selection
   const filteredAssignments = assignments.filter(a => {
-    if (selectedMonthFilter === 'all') return true;
-    const [year, month] = selectedMonthFilter.split('-');
-    const aDate = new Date(a.date + 'T00:00:00');
-    return aDate.getFullYear() === parseInt(year) && (aDate.getMonth() + 1) === parseInt(month);
+    if (selectedCalendarIdFilter === 'all') return true;
+    if (!activeCalendar) return false;
+    return activeCalendar.workOrderIds.includes(a.workOrderId);
   });
 
-  // Filter work orders based on month selection
+  // Filter work orders based on calendar selection
   const filteredWorkOrders = workOrders.filter(w => {
-    if (selectedMonthFilter === 'all') return true;
-    if (!w.plannedDate) return false;
-    const [year, month] = selectedMonthFilter.split('-');
-    const wDate = new Date(w.plannedDate + 'T00:00:00');
-    return wDate.getFullYear() === parseInt(year) && (wDate.getMonth() + 1) === parseInt(month);
+    if (selectedCalendarIdFilter === 'all') return true;
+    if (!activeCalendar) return false;
+    return activeCalendar.workOrderIds.includes(w.id);
   });
 
   // Overall Statistics
@@ -206,20 +204,14 @@ export default function ReportsPage({ workOrders, assignments, personnel }: Repo
 
   return (
     <div className="reports-page" style={{ backgroundColor: 'var(--sapBackgroundColor)', padding: '20px 24px', flex: 1, overflowY: 'auto' }}>
-      {/* Header and Global period dropdown */}
-      <div className="page-header" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-        <div>
-          <h2 style={{ color: 'var(--sapTextColor)', margin: 0 }}>Raporlar</h2>
-          <p style={{ color: 'var(--sapContent_LabelColor)', margin: '4px 0 0 0' }}>Sistem genel izleme ve personel raporları</p>
-        </div>
-
-        {/* Period Selector Filter */}
+      <div className="page-header" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        {/* Calendar Selector Filter */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.85rem', color: 'var(--sapContent_LabelColor)', fontWeight: '600' }}>Dönem Seçimi:</span>
+          <span style={{ fontSize: '0.85rem', color: 'var(--sapContent_LabelColor)', fontWeight: '600' }}>Takvim Seçimi:</span>
           <select
-            value={selectedMonthFilter}
+            value={selectedCalendarIdFilter}
             onChange={(e) => {
-              setSelectedMonthFilter(e.target.value);
+              setSelectedCalendarIdFilter(e.target.value);
               setSelectedPersonnelId(null);
               setSelectedDayFilter('all');
               setSelectedWeekFilter('all');
@@ -236,9 +228,9 @@ export default function ReportsPage({ workOrders, assignments, personnel }: Repo
               cursor: 'pointer'
             }}
           >
-            <option value="all">Tüm Dönemler</option>
-            {monthOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            <option value="all">Tüm Takvimler</option>
+            {calendars.map(c => (
+              <option key={c.id} value={c.id}>{c.name} ({c.startDate} - {c.endDate})</option>
             ))}
           </select>
         </div>
