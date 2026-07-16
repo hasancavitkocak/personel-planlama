@@ -19,27 +19,27 @@ export const personnel: Personnel[] = [
 export const initialWorkOrders: WorkOrder[] = [
   {
     id: "WO-2024-001", title: "Pompa Bakımı", description: "P-101 santrifüj pompa periyodik bakımı",
-    priority: "high", status: "unassigned", duration: 4, requiredSkill: "Mekanik",
-    location: "Üretim Sahası A", plannedDate: null, assignedTo: null,
-    startHour: 8, equipment: "P-101", orderType: "PM01", workCenter: "Mekanik Atölye"
+    priority: "high", status: "completed", duration: 4, requiredSkill: "Mekanik",
+    location: "Üretim Sahası A", plannedDate: "2026-06-15", assignedTo: "P001",
+    startHour: 9, equipment: "P-101", orderType: "PM01", workCenter: "Mekanik Atölye"
   },
   {
     id: "WO-2024-002", title: "Elektrik Pano Kontrolü", description: "MCC-05 motor kontrol merkezi bakımı",
-    priority: "critical", status: "unassigned", duration: 3, requiredSkill: "Elektrik",
-    location: "Elektrik Odası", plannedDate: null, assignedTo: null,
+    priority: "critical", status: "completed", duration: 3, requiredSkill: "Elektrik",
+    location: "Elektrik Odası", plannedDate: "2026-06-18", assignedTo: "P002",
     startHour: 10, equipment: "MCC-05", orderType: "PM02", workCenter: "Elektrik Atölye"
   },
   {
     id: "WO-2024-003", title: "Vana Değişimi", description: "V-203 kontrol vanası değişimi",
-    priority: "medium", status: "unassigned", duration: 2, requiredSkill: "Mekanik",
-    location: "Boru Hattı B", plannedDate: null, assignedTo: null,
-    startHour: null, equipment: "V-203", orderType: "PM01", workCenter: "Mekanik Atölye"
+    priority: "medium", status: "assigned", duration: 2, requiredSkill: "Mekanik",
+    location: "Boru Hattı B", plannedDate: "2026-05-05", assignedTo: "P003",
+    startHour: 14, equipment: "V-203", orderType: "PM01", workCenter: "Mekanik Atölye"
   },
   {
     id: "WO-2024-004", title: "PLC Yazılım Güncelleme", description: "Siemens S7-1500 firmware güncellemesi",
-    priority: "medium", status: "unassigned", duration: 5, requiredSkill: "PLC",
-    location: "Kontrol Odası", plannedDate: null, assignedTo: null,
-    startHour: 13, equipment: "PLC-01", orderType: "PM03", workCenter: "Elektrik Atölye"
+    priority: "medium", status: "assigned", duration: 5, requiredSkill: "PLC",
+    location: "Kontrol Odası", plannedDate: "2026-04-12", assignedTo: "P004",
+    startHour: 11, equipment: "PLC-01", orderType: "PM03", workCenter: "Elektrik Atölye"
   },
   {
     id: "WO-2024-005", title: "Kompresör Yağ Değişimi", description: "K-301 hava kompresörü yağ değişimi",
@@ -94,6 +94,60 @@ export const initialWorkOrders: WorkOrder[] = [
     priority: "high", status: "assigned", duration: 4, requiredSkill: "Otomasyon",
     location: "Kontrol Odası", plannedDate: new Date().toISOString().split('T')[0], assignedTo: "P005",
     startHour: 7, equipment: "AUTO-01", orderType: "PM03", workCenter: "Elektrik Atölye"
+  },
+  {
+    id: "WO-2024-014", title: "Rulman Değişimi", description: "Fan motoru rulman yenileme",
+    priority: "high", status: "completed", duration: 3, requiredSkill: "Mekanik",
+    location: "Kazan Dairesi", plannedDate: "2026-06-10", assignedTo: "P002",
+    startHour: 8, equipment: "FAN-02", orderType: "PM01", workCenter: "Mekanik Atölye"
+  },
+  {
+    id: "WO-2024-015", title: "Aydınlatma Revizyonu", description: "Depo aydınlatma armatür değişimi",
+    priority: "low", status: "completed", duration: 4, requiredSkill: "Elektrik",
+    location: "Depo Alanı", plannedDate: "2026-06-12", assignedTo: "P005",
+    startHour: 13, equipment: "LGT-09", orderType: "PM03", workCenter: "Elektrik Atölye"
+  },
+  {
+    id: "WO-2024-016", title: "Kalibrasyon Çalışması", description: "Sıcaklık transmiteri kalibrasyonu",
+    priority: "medium", status: "assigned", duration: 2, requiredSkill: "Enstrümantasyon",
+    location: "Reaktör B", plannedDate: "2026-07-17", assignedTo: "P003",
+    startHour: 10, equipment: "TT-302", orderType: "PM02", workCenter: "Enstrümantasyon"
+  },
+  {
+    id: "WO-2024-017", title: "Hava Sızıntısı Onarımı", description: "Hava boru hattı kaçak tespiti ve kaynak onarımı",
+    priority: "high", status: "assigned", duration: 3, requiredSkill: "Kaynak",
+    location: "Kompresör Alanı", plannedDate: "2026-07-18", assignedTo: "P004",
+    startHour: 9, equipment: "AIR-05", orderType: "PM01", workCenter: "Mekanik Atölye"
+  },
+  {
+    id: "WO-2024-018", title: "Yıllık Trafo Testi", description: "TR-02 trafo izolasyon ve yağ testleri",
+    priority: "critical", status: "assigned", duration: 6, requiredSkill: "Elektrik",
+    location: "Trafo Merkezi 2", plannedDate: "2026-07-20", assignedTo: "P001",
+    startHour: 8, equipment: "TR-02", orderType: "PM02", workCenter: "Elektrik Atölye"
+  },
+  {
+    id: "WO-2024-019", title: "Bant Konveyör Revizyonu", description: "C-104 bant rulosu ve şasi kontrolü",
+    priority: "high", status: "assigned", duration: 4, requiredSkill: "Mekanik",
+    location: "Paketleme Ünitesi", plannedDate: "2026-07-22", assignedTo: "P002",
+    startHour: 13, equipment: "CVY-104", orderType: "PM01", workCenter: "Mekanik Atölye"
+  },
+  {
+    id: "WO-2024-020", title: "SCADA Haberleşme Kontrolü", description: "RTU panosu ethernet switch değişimi",
+    priority: "medium", status: "assigned", duration: 3, requiredSkill: "PLC",
+    location: "Kontrol Odası", plannedDate: "2026-07-25", assignedTo: "P005",
+    startHour: 10, equipment: "RTU-03", orderType: "PM03", workCenter: "Elektrik Atölye"
+  },
+  {
+    id: "WO-2024-021", title: "Seviye Sensörü Temizliği", description: "LT-105 ultrasonik seviye sensörü temizliği",
+    priority: "low", status: "assigned", duration: 2, requiredSkill: "Enstrümantasyon",
+    location: "Atık Su Tankı", plannedDate: "2026-05-08", assignedTo: "P003",
+    startHour: 15, equipment: "LT-105", orderType: "PM02", workCenter: "Enstrümantasyon"
+  },
+  {
+    id: "WO-2024-022", title: "Pompa Kaplin Ayarı", description: "P-104 besi pompası lazer kaplin ayarı",
+    priority: "medium", status: "assigned", duration: 3, requiredSkill: "Mekanik",
+    location: "Kazan Dairesi", plannedDate: "2026-04-20", assignedTo: "P006",
+    startHour: 9, equipment: "P-104", orderType: "PM01", workCenter: "Mekanik Atölye"
   }
 ];
 
@@ -122,6 +176,71 @@ export const initialAssignments: Assignment[] = [
     id: "A005", workOrderId: "WO-2024-013", personnelId: "P005",
     date: new Date().toISOString().split('T')[0], startHour: 7, duration: 4, status: "confirmed",
     title: "Otomasyon Testi", priority: "high", equipment: "AUTO-01"
+  },
+  {
+    id: "A-MOCK-001", workOrderId: "WO-2024-001", personnelId: "P001",
+    date: "2026-06-15", startHour: 9, duration: 4, status: "completed",
+    title: "Pompa Bakımı", priority: "high", equipment: "P-101"
+  },
+  {
+    id: "A-MOCK-002", workOrderId: "WO-2024-002", personnelId: "P002",
+    date: "2026-06-18", startHour: 10, duration: 3, status: "completed",
+    title: "Elektrik Pano Kontrolü", priority: "critical", equipment: "MCC-05"
+  },
+  {
+    id: "A-MOCK-003", workOrderId: "WO-2024-003", personnelId: "P003",
+    date: "2026-05-05", startHour: 14, duration: 2, status: "confirmed",
+    title: "Vana Değişimi", priority: "medium", equipment: "V-203"
+  },
+  {
+    id: "A-MOCK-004", workOrderId: "WO-2024-004", personnelId: "P004",
+    date: "2026-04-12", startHour: 11, duration: 5, status: "pending",
+    title: "PLC Yazılım Güncelleme", priority: "medium", equipment: "PLC-01"
+  },
+  {
+    id: "A-MOCK-005", workOrderId: "WO-2024-014", personnelId: "P002",
+    date: "2026-06-10", startHour: 8, duration: 3, status: "completed",
+    title: "Rulman Değişimi", priority: "high", equipment: "FAN-02"
+  },
+  {
+    id: "A-MOCK-006", workOrderId: "WO-2024-015", personnelId: "P005",
+    date: "2026-06-12", startHour: 13, duration: 4, status: "completed",
+    title: "Aydınlatma Revizyonu", priority: "low", equipment: "LGT-09"
+  },
+  {
+    id: "A-MOCK-007", workOrderId: "WO-2024-016", personnelId: "P003",
+    date: "2026-07-17", startHour: 10, duration: 2, status: "confirmed",
+    title: "Kalibrasyon Çalışması", priority: "medium", equipment: "TT-302"
+  },
+  {
+    id: "A-MOCK-008", workOrderId: "WO-2024-017", personnelId: "P004",
+    date: "2026-07-18", startHour: 9, duration: 3, status: "confirmed",
+    title: "Hava Sızıntısı Onarımı", priority: "high", equipment: "AIR-05"
+  },
+  {
+    id: "A-MOCK-009", workOrderId: "WO-2024-018", personnelId: "P001",
+    date: "2026-07-20", startHour: 8, duration: 6, status: "confirmed",
+    title: "Yıllık Trafo Testi", priority: "critical", equipment: "TR-02"
+  },
+  {
+    id: "A-MOCK-010", workOrderId: "WO-2024-019", personnelId: "P002",
+    date: "2026-07-22", startHour: 13, duration: 4, status: "confirmed",
+    title: "Bant Konveyör Revizyonu", priority: "high", equipment: "CVY-104"
+  },
+  {
+    id: "A-MOCK-011", workOrderId: "WO-2024-020", personnelId: "P005",
+    date: "2026-07-25", startHour: 10, duration: 3, status: "confirmed",
+    title: "SCADA Haberleşme Kontrolü", priority: "medium", equipment: "RTU-03"
+  },
+  {
+    id: "A-MOCK-012", workOrderId: "WO-2024-021", personnelId: "P003",
+    date: "2026-05-08", startHour: 15, duration: 2, status: "confirmed",
+    title: "Seviye Sensörü Temizliği", priority: "low", equipment: "LT-105"
+  },
+  {
+    id: "A-MOCK-013", workOrderId: "WO-2024-022", personnelId: "P006",
+    date: "2026-04-20", startHour: 9, duration: 3, status: "confirmed",
+    title: "Pompa Kaplin Ayarı", priority: "medium", equipment: "P-104"
   }
 ];
 
