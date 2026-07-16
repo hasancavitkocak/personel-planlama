@@ -48,3 +48,17 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+/* Layout Spacing Adjustments (Side menu and Page content gap) */
+.workorders-page,
+.personnel-page,
+.reports-page,
+.planning-page,
+.calendar-container,
+.settings-page {
+  padding: 16px 16px !important; /* Reduced from 24px/28px to minimize gap */
+}
+
+ui5-shellbar {
+  padding-left: 8px !important;
+}

@@ -22,8 +22,47 @@ export default function NavRail({ activePage, onNavigate }: NavRailProps) {
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-      <SideNavigation onSelectionChange={handleSelectionChange} style={{ height: '100%' }}>
+    <div style={{
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      flexShrink: 0,
+      width: '240px',
+      borderRight: '1px solid var(--sapList_BorderColor)',
+      backgroundColor: 'var(--sapList_Background)',
+      overflow: 'hidden'
+    }}>
+      {/* Sidebar Header / Logo */}
+      <div style={{
+        padding: '20px 16px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        borderBottom: '1px solid var(--sapList_BorderColor)',
+        backgroundColor: 'var(--sapList_HeaderBackground)'
+      }}>
+        <div style={{
+          width: '32px',
+          height: '32px',
+          borderRadius: '8px',
+          background: 'linear-gradient(135deg, #007AFF 0%, #1D4ED8 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          fontWeight: 'bold',
+          fontSize: '1rem',
+          boxShadow: '0 2px 6px rgba(0, 122, 255, 0.3)'
+        }}>
+          PP
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--sapTextColor)', lineHeight: 1.2 }}>Personel</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)', fontWeight: '500' }}>Planlama</span>
+        </div>
+      </div>
+
+      <SideNavigation onSelectionChange={handleSelectionChange} style={{ flex: 1, width: '100%' }}>
         <SideNavigationItem
           text="İş Emirleri"
           icon="activity-items"
