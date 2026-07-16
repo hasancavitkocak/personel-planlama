@@ -57,18 +57,7 @@ const getMonthLabel = (dateStr: string) => {
   };
 };
 
-// Generate month options (current month and past 11 months)
-const getMonthOptions = () => {
-  const options = [];
-  const currentDate = new Date();
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-    const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    const label = d.toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
-    options.push({ value, label });
-  }
-  return options;
-};
+
 
 export default function ReportsPage({ workOrders, assignments, personnel, calendars }: ReportsPageProps) {
   const [activeTab, setActiveTab] = useState<'calendar' | 'personnel'>('calendar');
