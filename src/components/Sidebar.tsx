@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { User, WorkOrder, Assignment, Personnel } from '../types';
+import type { User, WorkOrder, Assignment, Personnel, PlanningCalendar } from '../types';
 import { Card, Tag, Icon, FlexBox, Avatar, MessageStrip } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/activity-items.js';
 import '@ui5/webcomponents-icons/dist/group.js';
@@ -15,12 +15,28 @@ interface SidebarProps {
   assignments: Assignment[];
   personnel: Personnel[];
   onRemoveAssignment: (assignmentId: string) => void;
+  activeCalendarId?: string | null;
+  calendars?: PlanningCalendar[];
 }
 
-export default function Sidebar({ user, workOrders, assignments, personnel, onRemoveAssignment }: SidebarProps) {
+export default function Sidebar({
+  user,
+  workOrders,
+  assignments,
+  personnel,
+  onRemoveAssignment,
+  activeCalendarId,
+  calendars
+}: SidebarProps) {
   const [isDragOver, setIsDragOver] = useState(false);
 
-  const unassignedOrders = workOrders.filter(wo => wo.status === 'unassigned');
+  const activeCal = calendars?.find(c => c.id === activeCalendarId) || null;
+  const calendarWoIds = activeCal ? activeCal.workOrderIds : [];
+
+  const unassignedOrders = activeCal 
+    ? workOrders.filter(wo => calendarWoIds.includes(wo.id))
+    : workOrders.filter(wo => wo.status === 'unassigned');
+
   const todayAssignments = assignments.filter(a => a.date === new Date().toISOString().split('T')[0]);
 
   const stats = [
@@ -103,7 +119,7 @@ export default function Sidebar({ user, workOrders, assignments, personnel, onRe
         <FlexBox justifyContent="SpaceBetween" alignItems="Center" style={{ marginBottom: '12px' }}>
           <FlexBox alignItems="Center" style={{ gap: '6px', fontWeight: 'bold', color: 'var(--sapTextColor)', fontSize: '0.85rem' }}>
             <Icon name="activity-items" style={{ width: '14px', height: '14px' }} />
-            <span>Atanmamış İş Emirleri</span>
+            <span>{activeCal ? `${activeCal.name} İşleri` : 'Atanmamış İş Emirleri'}</span>
           </FlexBox>
           <Tag colorScheme="6">{unassignedOrders.length}</Tag>
         </FlexBox>

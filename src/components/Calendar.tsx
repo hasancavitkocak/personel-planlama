@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { Personnel, Assignment, WorkOrder } from '../types';
-import { Button, SegmentedButton, SegmentedButtonItem, FlexBox } from '@ui5/webcomponents-react';
+import type { Personnel, Assignment, WorkOrder, PlanningCalendar } from '../types';
+import { Button, SegmentedButton, SegmentedButtonItem, FlexBox, Select, Option } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/slim-arrow-left.js';
 import '@ui5/webcomponents-icons/dist/slim-arrow-right.js';
 import { format, addDays, subDays, startOfWeek, addWeeks, subWeeks } from 'date-fns';
@@ -16,9 +16,22 @@ interface CalendarProps {
   onDateChange: (date: Date) => void;
   onAssign: (workOrder: WorkOrder | Assignment, personnelId: string, startHour: number) => void;
   onRemoveAssignment: (assignmentId: string) => void;
+  calendars: PlanningCalendar[];
+  activeCalendarId: string | null;
+  onActiveCalendarChange: (id: string | null) => void;
 }
 
-export default function Calendar({ personnel, assignments, currentDate, onDateChange, onAssign, onRemoveAssignment }: CalendarProps) {
+export default function Calendar({
+  personnel,
+  assignments,
+  currentDate,
+  onDateChange,
+  onAssign,
+  onRemoveAssignment,
+  calendars,
+  activeCalendarId,
+  onActiveCalendarChange
+}: CalendarProps) {
   const [view, setView] = useState<'day' | 'week'>('day');
   
   const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -67,6 +80,31 @@ export default function Calendar({ personnel, assignments, currentDate, onDateCh
           </div>
           <Button icon="slim-arrow-right" onClick={handleNext} design="Transparent" />
           <Button onClick={handleToday} design="Default" style={{ marginLeft: '8px' }}>Bugün</Button>
+        </FlexBox>
+
+        {/* Dropdown for Active Calendar Selection */}
+        <FlexBox alignItems="Center" style={{ gap: '8px' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--sapTextColor)', fontWeight: 'bold' }}>Planlama Takvimi:</span>
+          <Select 
+            onChange={(e: any) => {
+              const val = e.target.value === 'ALL' ? null : e.target.value;
+              onActiveCalendarChange(val);
+              if (val) {
+                const selectedCal = calendars.find(c => c.id === val);
+                if (selectedCal) {
+                  onDateChange(new Date(selectedCal.startDate));
+                }
+              }
+            }}
+            style={{ width: '220px' }}
+          >
+            <Option value="ALL" selected={activeCalendarId === null}>Tümü</Option>
+            {calendars.map(c => (
+              <Option key={c.id} value={c.id} selected={activeCalendarId === c.id}>
+                {c.name} ({c.startDate} - {c.endDate})
+              </Option>
+            ))}
+          </Select>
         </FlexBox>
         
         <SegmentedButton onSelectionChange={handleViewChange}>

@@ -4,8 +4,9 @@ import '@ui5/webcomponents-icons/dist/action-settings.js';
 import '@ui5/webcomponents-icons/dist/group.js';
 import '@ui5/webcomponents-icons/dist/manager.js';
 import '@ui5/webcomponents-icons/dist/activity-items.js';
+import '@ui5/webcomponents-icons/dist/date-time.js';
 
-export type Page = 'calendar' | 'workorders' | 'personnel' | 'reports' | 'settings';
+export type Page = 'calendar' | 'workorders' | 'personnel' | 'reports' | 'settings' | 'planning';
 
 interface NavRailProps {
   activePage: Page;
@@ -24,16 +25,22 @@ export default function NavRail({ activePage, onNavigate }: NavRailProps) {
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
       <SideNavigation onSelectionChange={handleSelectionChange} style={{ height: '100%' }}>
         <SideNavigationItem
-          text="Takvim"
-          icon="calendar"
-          data-page="calendar"
-          selected={activePage === 'calendar'}
-        />
-        <SideNavigationItem
           text="İş Emirleri"
           icon="activity-items"
           data-page="workorders"
           selected={activePage === 'workorders'}
+        />
+        <SideNavigationItem
+          text="Planlama"
+          icon="date-time"
+          data-page="planning"
+          selected={activePage === 'planning'}
+        />
+        <SideNavigationItem
+          text="Takvim"
+          icon="calendar"
+          data-page="calendar"
+          selected={activePage === 'calendar'}
         />
         <SideNavigationItem
           text="Personel"
@@ -57,3 +64,4 @@ export default function NavRail({ activePage, onNavigate }: NavRailProps) {
     </div>
   );
 }
+

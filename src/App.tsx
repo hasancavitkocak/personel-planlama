@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { WorkOrder, Assignment, Personnel, User } from './types';
-import { currentUser, personnel as initialPersonnel, initialWorkOrders, initialAssignments } from './data/mockData';
+import type { WorkOrder, Assignment, Personnel, User, PlanningCalendar, LeaveRecord } from './types';
+import { currentUser, personnel as initialPersonnel, initialWorkOrders, initialAssignments, initialLeaveRecords, initialCalendars } from './data/mockData';
 import NavRail, { type Page } from './components/NavRail';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
@@ -10,8 +10,10 @@ import PersonnelPage from './components/PersonnelPage';
 import ReportsPage from './components/ReportsPage';
 import SettingsPage from './components/SettingsPage';
 import WorkOrdersPage from './components/WorkOrdersPage';
+import PlanningPage from './components/PlanningPage';
 import { motion } from 'framer-motion';
 import './App.css';
+
 
 function App() {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>(initialWorkOrders);
@@ -21,7 +23,11 @@ function App() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingWorkOrder, setEditingWorkOrder] = useState<WorkOrder | null>(null);
-  const [activePage, setActivePage] = useState<Page>('calendar');
+  const [activePage, setActivePage] = useState<Page>('workorders');
+  const [calendars, setCalendars] = useState<PlanningCalendar[]>(initialCalendars);
+  const [leaveRecords] = useState<LeaveRecord[]>(initialLeaveRecords);
+  const [activeCalendarId, setActiveCalendarId] = useState<string | null>(initialCalendars[0]?.id || null);
+
 
   const handleCreateWorkOrder = () => {
     setEditingWorkOrder(null);
@@ -103,6 +109,8 @@ function App() {
               assignments={assignments}
               personnel={personnelList}
               onRemoveAssignment={handleRemoveAssignment}
+              activeCalendarId={activeCalendarId}
+              calendars={calendars}
             />
             <div className="main-content">
               <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
@@ -113,6 +121,9 @@ function App() {
                 onDateChange={setCurrentDate}
                 onAssign={handleAssignWorkOrder}
                 onRemoveAssignment={handleRemoveAssignment}
+                calendars={calendars}
+                activeCalendarId={activeCalendarId}
+                onActiveCalendarChange={setActiveCalendarId}
               />
             </div>
           </>
@@ -156,8 +167,25 @@ function App() {
             <SettingsPage user={user} onUpdateUser={setUser} />
           </div>
         );
+      case 'planning':
+        return (
+          <div className="main-content">
+            <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
+            <PlanningPage
+              workOrders={workOrders}
+              setWorkOrders={setWorkOrders}
+              assignments={assignments}
+              setAssignments={setAssignments}
+              personnel={personnelList}
+              calendars={calendars}
+              setCalendars={setCalendars}
+              leaveRecords={leaveRecords}
+            />
+          </div>
+        );
     }
   };
+
 
   return (
     <motion.div

@@ -13,6 +13,7 @@ export interface Personnel {
   capacity: number;
   avatar: string;
   color: string;
+  workCenter?: string;
 }
 
 export interface WorkOrder {
@@ -29,6 +30,7 @@ export interface WorkOrder {
   startHour: number | null;
   equipment: string;
   orderType: string;
+  workCenter?: string;
 }
 
 export interface Assignment {
@@ -43,3 +45,19 @@ export interface Assignment {
   priority: 'low' | 'medium' | 'high' | 'critical';
   equipment: string;
 }
+
+export interface PlanningCalendar {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  workOrderIds: string[];
+}
+
+export interface LeaveRecord {
+  id: string;
+  personnelId: string;
+  startDate: string;
+  endDate: string;
+}
+
