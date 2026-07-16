@@ -8,11 +8,11 @@
   z-index: 100;
 }
 
-/* Header with gradient */
+/* Header with Fiori styling */
 .sidebar-header {
   padding: 20px;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(160deg, #0F2460 0%, #1E3A8A 50%, #1D4ED8 100%);
+  border-bottom: 1px solid var(--sapList_BorderColor);
+  background: var(--sapGroup_ContentBackground);
   position: relative;
   overflow: hidden;
 }
@@ -24,7 +24,7 @@
   right: -40px;
   width: 120px;
   height: 120px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.02);
   border-radius: 50%;
 }
 
@@ -35,7 +35,7 @@
   left: -20px;
   width: 80px;
   height: 80px;
-  background: rgba(255,255,255,0.04);
+  background: rgba(0,0,0,0.01);
   border-radius: 50%;
 }
 

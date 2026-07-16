@@ -1,6 +1,7 @@
-import { Plus, RefreshCw, CalendarDays } from 'lucide-react';
-import { motion } from 'framer-motion';
-import './TopBar.css';
+import { ShellBar, ShellBarItem, Avatar } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/add.js';
+import '@ui5/webcomponents-icons/dist/refresh.js';
+import '@ui5/webcomponents-icons/dist/employee.js';
 
 interface TopBarProps {
   onCreateWorkOrder: () => void;
@@ -9,41 +10,20 @@ interface TopBarProps {
 
 export default function TopBar({ onCreateWorkOrder, onRefresh }: TopBarProps) {
   return (
-    <motion.div
-      className="top-bar"
-      initial={{ y: -60 }}
-      animate={{ y: 0 }}
-      transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+    <ShellBar
+      primaryTitle="Personel Planlama"
+      secondaryTitle="Bakım iş gücü planlama ve atama sistemi"
+      profile={<Avatar icon="employee" />}
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 10,
+        boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+        borderBottom: '1px solid var(--sapList_BorderColor)'
+      }}
     >
-      <div className="top-bar-brand">
-        <div className="brand-icon">
-          <CalendarDays size={18} />
-        </div>
-        <div className="top-bar-left">
-          <h1>Personel Planlama</h1>
-          <p>Bakım iş gücü planlama ve atama sistemi</p>
-        </div>
-      </div>
-      <div className="top-bar-actions">
-        <motion.button
-          className="btn btn-secondary"
-          onClick={onRefresh}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          <RefreshCw size={14} />
-          Yenile
-        </motion.button>
-        <motion.button
-          className="btn btn-primary"
-          onClick={onCreateWorkOrder}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          <Plus size={16} />
-          Yeni İş Emri
-        </motion.button>
-      </div>
-    </motion.div>
+      <ShellBarItem icon="refresh" text="Yenile" onClick={onRefresh} />
+      <ShellBarItem icon="add" text="Yeni İş Emri" onClick={onCreateWorkOrder} />
+    </ShellBar>
   );
 }

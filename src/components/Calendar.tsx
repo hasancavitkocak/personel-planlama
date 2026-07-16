@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { Personnel, Assignment, WorkOrder } from '../types';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button, SegmentedButton, SegmentedButtonItem, FlexBox } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/slim-arrow-left.js';
+import '@ui5/webcomponents-icons/dist/slim-arrow-right.js';
 import { format, addDays, subDays, startOfWeek, addWeeks, subWeeks } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { motion } from 'framer-motion';
@@ -48,61 +50,39 @@ export default function Calendar({ personnel, assignments, currentDate, onDateCh
     }
   };
 
+  const handleViewChange = (e: any) => {
+    const selectedItem = e.detail.selectedItem;
+    if (selectedItem) {
+      setView(selectedItem.dataset.value as 'day' | 'week');
+    }
+  };
+
   return (
-    <div className="calendar-container">
-      <div className="calendar-header">
-        <div className="date-navigation">
-          <motion.button 
-            className="nav-btn"
-            onClick={handlePrevious}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <ChevronLeft size={20} />
-          </motion.button>
-          <div className="current-date">{getDateRangeText()}</div>
-          <motion.button 
-            className="nav-btn"
-            onClick={handleNext}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <ChevronRight size={20} />
-          </motion.button>
-          <motion.button 
-            className="btn btn-secondary"
-            onClick={handleToday}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Bugün
-          </motion.button>
-        </div>
+    <div className="calendar-container" style={{ backgroundColor: 'var(--sapBackgroundColor)' }}>
+      <div className="calendar-header" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <FlexBox alignItems="Center" style={{ gap: '8px' }}>
+          <Button icon="slim-arrow-left" onClick={handlePrevious} design="Transparent" />
+          <div className="current-date" style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--sapTextColor)', minWidth: '220px', textAlign: 'center' }}>
+            {getDateRangeText()}
+          </div>
+          <Button icon="slim-arrow-right" onClick={handleNext} design="Transparent" />
+          <Button onClick={handleToday} design="Default" style={{ marginLeft: '8px' }}>Bugün</Button>
+        </FlexBox>
         
-        <div className="view-switcher">
-          <button 
-            className={`view-btn ${view === 'week' ? 'active' : ''}`}
-            onClick={() => setView('week')}
-          >
-            Hafta
-          </button>
-          <button 
-            className={`view-btn ${view === 'day' ? 'active' : ''}`}
-            onClick={() => setView('day')}
-          >
-            Gün
-          </button>
-        </div>
+        <SegmentedButton onSelectionChange={handleViewChange}>
+          <SegmentedButtonItem data-value="day" selected={view === 'day'}>Gün</SegmentedButtonItem>
+          <SegmentedButtonItem data-value="week" selected={view === 'week'}>Hafta</SegmentedButtonItem>
+        </SegmentedButton>
       </div>
 
       {view === 'day' ? (
         // DAY VIEW
-        <div className="planning-calendar">
-          <div className="calendar-timeline">
-            <div className="personnel-column">Personel</div>
+        <div className="planning-calendar" style={{ borderColor: 'var(--sapList_BorderColor)' }}>
+          <div className="calendar-timeline" style={{ borderBottom: '1px solid var(--sapList_BorderColor)', backgroundColor: 'var(--sapList_HeaderBackground)' }}>
+            <div className="personnel-column" style={{ color: 'var(--sapTextColor)', fontWeight: 'bold' }}>Personel</div>
             <div className="time-grid">
               {hours.map(hour => (
-                <div key={hour} className={`time-slot ${hour >= 8 && hour <= 17 ? 'work-hour' : ''}`}>
+                <div key={hour} className={`time-slot ${hour >= 8 && hour <= 17 ? 'work-hour' : ''}`} style={{ color: 'var(--sapTextColor)' }}>
                   {hour.toString().padStart(2, '0')}:00
                 </div>
               ))}
@@ -127,19 +107,21 @@ export default function Calendar({ personnel, assignments, currentDate, onDateCh
               );
             })}
           </div>
-          <div className="drop-hint">↑ İş emirlerini buraya sürükleyip bırakın</div>
+          <div className="drop-hint" style={{ backgroundColor: 'var(--sapList_HeaderBackground)', color: 'var(--sapContent_LabelColor)', borderTop: '1px solid var(--sapList_BorderColor)' }}>
+            ↑ İş emirlerini takvime sürükleyip bırakın
+          </div>
         </div>
       ) : (
         // WEEK VIEW
-        <div className="planning-calendar week-view">
-          <div className="week-header">
-            <div className="personnel-column-week">Personel</div>
+        <div className="planning-calendar week-view" style={{ borderColor: 'var(--sapList_BorderColor)' }}>
+          <div className="week-header" style={{ borderBottom: '1px solid var(--sapList_BorderColor)', backgroundColor: 'var(--sapList_HeaderBackground)' }}>
+            <div className="personnel-column-week" style={{ color: 'var(--sapTextColor)', fontWeight: 'bold' }}>Personel</div>
             {weekDays.map(day => {
               const isToday = day.toISOString().split('T')[0] === new Date().toISOString().split('T')[0];
               return (
-                <div key={day.toISOString()} className={`week-day-header ${isToday ? 'today' : ''}`}>
+                <div key={day.toISOString()} className={`week-day-header ${isToday ? 'today' : ''}`} style={{ color: 'var(--sapTextColor)' }}>
                   <div className="day-name">{format(day, 'EEE', { locale: tr })}</div>
-                  <div className="day-number">{format(day, 'd')}</div>
+                  <div className="day-number" style={{ fontWeight: isToday ? 'bold' : 'normal' }}>{format(day, 'd')}</div>
                 </div>
               );
             })}
@@ -147,14 +129,14 @@ export default function Calendar({ personnel, assignments, currentDate, onDateCh
 
           <div className="calendar-rows">
             {personnel.map((person) => (
-              <div key={person.id} className="week-row">
+              <div key={person.id} className="week-row" style={{ borderBottom: '1px solid var(--sapList_BorderColor)' }}>
                 <div className="row-personnel-week">
                   <div className="personnel-avatar" style={{ background: person.color }}>
                     {person.avatar}
                   </div>
                   <div className="personnel-info">
-                    <h4>{person.name}</h4>
-                    <p>{person.role}</p>
+                    <h4 style={{ color: 'var(--sapTextColor)' }}>{person.name}</h4>
+                    <p style={{ color: 'var(--sapContent_LabelColor)' }}>{person.role}</p>
                   </div>
                 </div>
 
@@ -175,9 +157,12 @@ export default function Calendar({ personnel, assignments, currentDate, onDateCh
                         const workOrderData = e.dataTransfer.getData('workOrder');
                         if (workOrderData) {
                           const workOrder = JSON.parse(workOrderData);
-                          // Default to 8:00 AM for week view drops
                           onAssign(workOrder, person.id, 8);
                         }
+                      }}
+                      style={{
+                        backgroundColor: isToday ? 'var(--sapList_SelectionBackgroundColor)' : 'transparent',
+                        borderRight: '1px solid var(--sapList_BorderColor)'
                       }}
                     >
                       {dayAssignments.map(assignment => (

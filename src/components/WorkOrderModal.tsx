@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { WorkOrder } from '../types';
-import { X, Clock } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import './WorkOrderModal.css';
+import { Dialog, Button, Input, TextArea, Select, Option, Label, FlexBox, MessageStrip } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/time-entry-request.js';
 
 interface WorkOrderModalProps {
   workOrder: WorkOrder | null;
@@ -18,7 +17,6 @@ export default function WorkOrderModal({ workOrder, onSave, onClose }: WorkOrder
     startHour: null, orderType: 'PM01'
   });
 
-  // Planned start hour — separate state, optional
   const [plannedStart, setPlannedStart] = useState<number | ''>('');
 
   useEffect(() => {
@@ -34,8 +32,11 @@ export default function WorkOrderModal({ workOrder, onSave, onClose }: WorkOrder
 
   const endHour = plannedStart !== '' ? (plannedStart as number) + (formData.duration ?? 0) : null;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = () => {
+    if (!formData.id || !formData.title || !formData.requiredSkill) {
+      alert('Lütfen zorunlu alanları doldurun (İş Emri No, Başlık, Gerekli Yetkinlik).');
+      return;
+    }
     onSave({
       ...formData,
       startHour: plannedStart !== '' ? plannedStart as number : null,
@@ -43,108 +44,129 @@ export default function WorkOrderModal({ workOrder, onSave, onClose }: WorkOrder
   };
 
   return (
-    <AnimatePresence>
-      <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
-        <motion.div className="modal" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} onClick={(e) => e.stopPropagation()}>
-          <div className="modal-header">
-            <h3>{workOrder ? 'İş Emrini Düzenle' : 'Yeni İş Emri'}</h3>
-            <button className="close-btn" onClick={onClose}><X size={20} /></button>
-          </div>
+    <Dialog
+      open={true}
+      headerText={workOrder ? 'İş Emrini Düzenle' : 'Yeni İş Emri'}
+      onClose={onClose}
+      style={{ width: '450px' }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '8px' }}>
+        <FlexBox style={{ gap: '12px' }}>
+          <FlexBox direction="Column" style={{ flex: 1, gap: '4px' }}>
+            <Label required>İş Emri No</Label>
+            <Input
+              value={formData.id}
+              onInput={(e: any) => setFormData({ ...formData, id: e.target.value })}
+            />
+          </FlexBox>
+          <FlexBox direction="Column" style={{ flex: 1, gap: '4px' }}>
+            <Label required>Öncelik</Label>
+            <Select
+              onChange={(e: any) => setFormData({ ...formData, priority: e.target.value as any })}
+              style={{ width: '100%' }}
+            >
+              <Option value="low" selected={formData.priority === 'low'}>Düşük</Option>
+              <Option value="medium" selected={formData.priority === 'medium'}>Orta</Option>
+              <Option value="high" selected={formData.priority === 'high'}>Yüksek</Option>
+              <Option value="critical" selected={formData.priority === 'critical'}>Kritik</Option>
+            </Select>
+          </FlexBox>
+        </FlexBox>
 
-          <form className="modal-body" onSubmit={handleSubmit}>
-            <div className="form-row">
-              <div className="form-group">
-                <label>İş Emri No</label>
-                <input type="text" className="form-control" value={formData.id} onChange={(e) => setFormData({ ...formData, id: e.target.value })} required />
-              </div>
-              <div className="form-group">
-                <label>Öncelik</label>
-                <select className="form-control" value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })} required>
-                  <option value="low">Düşük</option>
-                  <option value="medium">Orta</option>
-                  <option value="high">Yüksek</option>
-                  <option value="critical">Kritik</option>
-                </select>
-              </div>
-            </div>
+        <FlexBox direction="Column" style={{ gap: '4px' }}>
+          <Label required>Başlık</Label>
+          <Input
+            value={formData.title}
+            onInput={(e: any) => setFormData({ ...formData, title: e.target.value })}
+            style={{ width: '100%' }}
+          />
+        </FlexBox>
 
-            <div className="form-group">
-              <label>Başlık</label>
-              <input type="text" className="form-control" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required />
-            </div>
+        <FlexBox direction="Column" style={{ gap: '4px' }}>
+          <Label>Açıklama</Label>
+          <TextArea
+            value={formData.description || ''}
+            onInput={(e: any) => setFormData({ ...formData, description: e.target.value })}
+            rows={2}
+            style={{ width: '100%' }}
+          />
+        </FlexBox>
 
-            <div className="form-group">
-              <label>Açıklama</label>
-              <textarea className="form-control" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={2} />
-            </div>
+        <div style={{ border: '1px solid var(--sapList_BorderColor)', borderRadius: '6px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--sapTextColor)' }}>Zaman Planlaması</span>
+          
+          <FlexBox style={{ gap: '12px' }}>
+            <FlexBox direction="Column" style={{ flex: 1, gap: '4px' }}>
+              <Label>Süre (Saat)</Label>
+              <Select
+                onChange={(e: any) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
+                style={{ width: '100%' }}
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map(h => (
+                  <Option key={h} value={String(h)} selected={formData.duration === h}>{h} saat</Option>
+                ))}
+              </Select>
+            </FlexBox>
 
-            {/* Time planning section */}
-            <div className="time-section">
-              <div className="time-section-title"><Clock size={14} /> Zaman Planlaması</div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Süre (Saat)</label>
-                  <select className="form-control" value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })} required>
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map(h => (
-                      <option key={h} value={h}>{h} saat</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Planlanan Başlangıç <span className="optional-tag">isteğe bağlı</span></label>
-                  <select className="form-control" value={plannedStart} onChange={(e) => setPlannedStart(e.target.value === '' ? '' : parseInt(e.target.value))}>
-                    <option value="">Takvimde belirle</option>
-                    {Array.from({ length: 24 }, (_, i) => (
-                      <option key={i} value={i}>{String(i).padStart(2, '0')}:00</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+            <FlexBox direction="Column" style={{ flex: 1, gap: '4px' }}>
+              <Label>Planlanan Başlangıç</Label>
+              <Select
+                onChange={(e: any) => setPlannedStart(e.target.value === '' ? '' : parseInt(e.target.value))}
+                style={{ width: '100%' }}
+              >
+                <Option value="" selected={plannedStart === ''}>Takvimde belirle</Option>
+                {Array.from({ length: 24 }, (_, i) => (
+                  <Option key={i} value={String(i)} selected={plannedStart === i}>{String(i).padStart(2, '0')}:00</Option>
+                ))}
+              </Select>
+            </FlexBox>
+          </FlexBox>
 
-              {/* Time preview */}
-              {plannedStart !== '' && endHour !== null && (
-                <motion.div className="time-preview" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
-                  <Clock size={14} />
-                  <span>
-                    <strong>{String(plannedStart).padStart(2, '0')}:00</strong>
-                    {' → '}
-                    <strong>{String(endHour).padStart(2, '0')}:00</strong>
-                  </span>
-                  <span className="time-preview-badge">{formData.duration} saat</span>
-                  {endHour > 24 && <span className="time-preview-warn">⚠️ 24:00'ü geçiyor!</span>}
-                </motion.div>
-              )}
+          {plannedStart !== '' && endHour !== null && (
+            <MessageStrip design={endHour > 24 ? "Critical" : "Information"} hideCloseButton>
+              {String(plannedStart).padStart(2, '0')}:00 → {String(endHour).padStart(2, '0')}:00 ({formData.duration} saat)
+              {endHour > 24 && ' (Günü geçiyor!)'}
+            </MessageStrip>
+          )}
 
-              {plannedStart === '' && (
-                <div className="time-hint">
-                  💡 Başlangıç saati seçmezseniz, iş emrini takvimde istediğiniz saate sürükleyerek atayabilirsiniz.
-                </div>
-              )}
-            </div>
+          {plannedStart === '' && (
+            <span style={{ fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)' }}>
+              💡 Başlangıç saati seçmezseniz, iş emrini takvimde istediğiniz saate sürükleyerek atayabilirsiniz.
+            </span>
+          )}
+        </div>
 
-            <div className="form-group">
-              <label>Gerekli Yetkinlik</label>
-              <input type="text" className="form-control" value={formData.requiredSkill} onChange={(e) => setFormData({ ...formData, requiredSkill: e.target.value })} required />
-            </div>
+        <FlexBox direction="Column" style={{ gap: '4px' }}>
+          <Label required>Gerekli Yetkinlik</Label>
+          <Input
+            value={formData.requiredSkill}
+            onInput={(e: any) => setFormData({ ...formData, requiredSkill: e.target.value })}
+            style={{ width: '100%' }}
+          />
+        </FlexBox>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label>Ekipman</label>
-                <input type="text" className="form-control" value={formData.equipment} onChange={(e) => setFormData({ ...formData, equipment: e.target.value })} />
-              </div>
-              <div className="form-group">
-                <label>Lokasyon</label>
-                <input type="text" className="form-control" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} />
-              </div>
-            </div>
+        <FlexBox style={{ gap: '12px' }}>
+          <FlexBox direction="Column" style={{ flex: 1, gap: '4px' }}>
+            <Label>Ekipman</Label>
+            <Input
+              value={formData.equipment}
+              onInput={(e: any) => setFormData({ ...formData, equipment: e.target.value })}
+            />
+          </FlexBox>
+          <FlexBox direction="Column" style={{ flex: 1, gap: '4px' }}>
+            <Label>Lokasyon</Label>
+            <Input
+              value={formData.location}
+              onInput={(e: any) => setFormData({ ...formData, location: e.target.value })}
+            />
+          </FlexBox>
+        </FlexBox>
+      </div>
 
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={onClose}>İptal</button>
-              <button type="submit" className="btn btn-primary" disabled={endHour !== null && endHour > 24}>Kaydet</button>
-            </div>
-          </form>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+      <div slot="footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', padding: '12px 16px', width: '100%' }}>
+        <Button design="Transparent" onClick={onClose}>İptal</Button>
+        <Button design="Emphasized" onClick={handleSave} disabled={endHour !== null && endHour > 24}>Kaydet</Button>
+      </div>
+    </Dialog>
   );
 }

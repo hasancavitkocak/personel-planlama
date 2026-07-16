@@ -1,18 +1,21 @@
 import type { WorkOrder } from '../types';
-import { Clock, Wrench, MapPin, Package, GripVertical } from 'lucide-react';
+import { Card, Tag, Icon, FlexBox } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/time-entry-request.js';
+import '@ui5/webcomponents-icons/dist/wrench.js';
+import '@ui5/webcomponents-icons/dist/product.js';
+import '@ui5/webcomponents-icons/dist/locate-me.js';
 import { motion } from 'framer-motion';
-import './WorkOrderCard.css';
 
 interface WorkOrderCardProps {
   order: WorkOrder;
   index: number;
 }
 
-const priorityGradients: Record<string, string> = {
-  critical: 'linear-gradient(180deg, #BE185D, #9D174D)',
-  high:     'linear-gradient(180deg, #DC2626, #B91C1C)',
-  medium:   'linear-gradient(180deg, #D97706, #B45309)',
-  low:      'linear-gradient(180deg, #16A34A, #15803D)',
+const priorityScheme: Record<string, string> = {
+  critical: '1',
+  high:     '2',
+  medium:   '6',
+  low:      '3',
 };
 
 const priorityLabels: Record<string, string> = {
@@ -32,36 +35,52 @@ export default function WorkOrderCard({ order, index }: WorkOrderCardProps) {
       transition={{ delay: index * 0.05 }}
       whileHover={{ scale: 1.01, y: -1 }}
     >
-      <div className="work-order-card" draggable onDragStart={handleDragStart}>
-        <div className="wo-bar" style={{ background: priorityGradients[order.priority] }} />
+      <div 
+        className={`work-order-card priority-${order.priority}`} 
+        draggable 
+        onDragStart={handleDragStart}
+        style={{ cursor: 'grab', marginBottom: '8px' }}
+      >
+        <Card style={{ width: '100%' }}>
+          <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <FlexBox justifyContent="SpaceBetween" alignItems="Center">
+              <span style={{ fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)', fontWeight: 'bold' }}>{order.id}</span>
+              <Tag colorScheme={priorityScheme[order.priority]}>
+                {priorityLabels[order.priority]}
+              </Tag>
+            </FlexBox>
 
-        <div className="wo-inner">
-          <div className="work-order-header">
-            <span className="work-order-id">{order.id}</span>
-            <span className={`priority-badge priority-${order.priority}`}>
-              {priorityLabels[order.priority]}
+            <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--sapTextColor)', display: 'block' }}>
+              {order.title}
             </span>
+
+            <FlexBox alignItems="Center" style={{ gap: '6px', fontSize: '0.8rem', color: 'var(--sapContent_LabelColor)' }}>
+              <Icon name="time-entry-request" style={{ width: '12px', height: '12px' }} />
+              {order.startHour !== null ? (
+                <span>
+                  <strong>{String(order.startHour).padStart(2,'0')}:00 – {String(order.startHour + order.duration).padStart(2,'0')}:00</strong> ({order.duration}s)
+                </span>
+              ) : (
+                <span>Süre: <strong>{order.duration} saat</strong></span>
+              )}
+            </FlexBox>
+
+            <FlexBox wrap="Wrap" style={{ gap: '8px', marginTop: '4px', borderTop: '1px solid var(--sapList_BorderColor)', paddingTop: '8px' }}>
+              <FlexBox alignItems="Center" style={{ gap: '4px', fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)' }}>
+                <Icon name="wrench" style={{ width: '10px', height: '10px' }} />
+                <span>{order.requiredSkill}</span>
+              </FlexBox>
+              <FlexBox alignItems="Center" style={{ gap: '4px', fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)' }}>
+                <Icon name="product" style={{ width: '10px', height: '10px' }} />
+                <span>{order.equipment}</span>
+              </FlexBox>
+              <FlexBox alignItems="Center" style={{ gap: '4px', fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)' }}>
+                <Icon name="locate-me" style={{ width: '10px', height: '10px' }} />
+                <span>{order.location}</span>
+              </FlexBox>
+            </FlexBox>
           </div>
-
-          <div className="work-order-title">{order.title}</div>
-
-          {/* Duration pill */}
-          <div className="duration-pill">
-            <Clock size={11} />
-            {order.startHour !== null
-              ? <><strong>{String(order.startHour).padStart(2,'0')}:00 – {String(order.startHour + order.duration).padStart(2,'0')}:00</strong> · {order.duration} saat</>
-              : <>Süre: <strong>{order.duration} saat</strong> · <span className="no-time-hint">saat belirlenmedi</span></>
-            }
-          </div>
-
-          <div className="work-order-meta">
-            <span className="meta-item"><Wrench size={11} />{order.requiredSkill}</span>
-            <span className="meta-item"><Package size={11} />{order.equipment}</span>
-            <span className="meta-item"><MapPin size={11} />{order.location}</span>
-          </div>
-        </div>
-
-        <GripVertical size={14} className="drag-hint" />
+        </Card>
       </div>
     </motion.div>
   );

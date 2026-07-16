@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import type { Assignment, WorkOrder } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Tag } from '@ui5/webcomponents-react';
 import './AssignmentBlock.css';
 
 interface AssignmentBlockProps {
@@ -14,6 +15,13 @@ const priorityGradients: Record<string, string> = {
   high:     'linear-gradient(135deg, #DC2626, #B91C1C)',
   medium:   'linear-gradient(135deg, #D97706, #B45309)',
   low:      'linear-gradient(135deg, #16A34A, #15803D)',
+};
+
+const priorityScheme: Record<string, string> = {
+  critical: '1',
+  high:     '2',
+  medium:   '6',
+  low:      '3',
 };
 
 const priorityLabels: Record<string, string> = {
@@ -75,17 +83,30 @@ export default function AssignmentBlock({ assignment }: AssignmentBlockProps) {
             transition={{ duration: 0.15 }}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            style={{
+              position: 'absolute',
+              top: 'calc(100% + 6px)',
+              left: 0,
+              minWidth: '220px',
+              backgroundColor: 'var(--sapGroup_ContentBackground)',
+              border: '1px solid var(--sapList_BorderColor)',
+              borderRadius: '8px',
+              padding: '12px',
+              boxShadow: 'var(--sapContent_ShadowHeader)',
+              zIndex: 100,
+              pointerEvents: 'none'
+            }}
           >
-            <div className="tooltip-header">
-              <span className="tooltip-title">{assignment.title}</span>
-              <span className={`tooltip-badge priority-${assignment.priority}`}>
+            <div className="tooltip-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <span className="tooltip-title" style={{ fontSize: '0.85rem', color: 'var(--sapTextColor)', fontWeight: 'bold' }}>{assignment.title}</span>
+              <Tag colorScheme={priorityScheme[assignment.priority]}>
                 {priorityLabels[assignment.priority]}
-              </span>
+              </Tag>
             </div>
-            <div className="tooltip-row">🕐 {String(assignment.startHour).padStart(2,'0')}:00 – {String(endHour).padStart(2,'0')}:00 ({assignment.duration} saat)</div>
-            <div className="tooltip-row">🔧 {assignment.equipment}</div>
-            <div className="tooltip-row">📋 {assignment.workOrderId}</div>
-            <div className={`tooltip-status status-${assignment.status}`}>
+            <div className="tooltip-row" style={{ fontSize: '0.8rem', color: 'var(--sapTextColor)', marginBottom: '4px' }}>🕐 {String(assignment.startHour).padStart(2,'0')}:00 – {String(endHour).padStart(2,'0')}:00 ({assignment.duration} saat)</div>
+            <div className="tooltip-row" style={{ fontSize: '0.8rem', color: 'var(--sapTextColor)', marginBottom: '4px' }}>🔧 {assignment.equipment}</div>
+            <div className="tooltip-row" style={{ fontSize: '0.8rem', color: 'var(--sapTextColor)', marginBottom: '4px' }}>📋 {assignment.workOrderId}</div>
+            <div className={`tooltip-status`} style={{ fontSize: '0.8rem', fontWeight: 'bold', marginTop: '6px', color: assignment.status === 'confirmed' ? 'var(--sapLegendColor1)' : 'var(--sapLegendColor3)' }}>
               {assignment.status === 'confirmed' ? '✅ Onaylandı' : assignment.status === 'pending' ? '⏳ Bekliyor' : '✔ Tamamlandı'}
             </div>
           </motion.div>

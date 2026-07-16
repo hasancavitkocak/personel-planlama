@@ -28,7 +28,6 @@ export default function CalendarRow({ person, assignments, onAssign, onRemoveAss
     setIsDragOver(true);
     const hour = getHourFromEvent(e);
     setHoverHour(hour);
-    // Try to read duration from drag data
     try {
       const data = e.dataTransfer.getData('workOrder');
       if (data) setDragDuration(JSON.parse(data).duration ?? 1);
@@ -66,20 +65,24 @@ export default function CalendarRow({ person, assignments, onAssign, onRemoveAss
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
+      style={{
+        borderBottom: '1px solid var(--sapList_BorderColor)',
+        backgroundColor: isDragOver ? 'var(--sapList_Hover_Background)' : 'var(--sapBackgroundColor)'
+      }}
     >
-      <div className="row-personnel">
+      <div className="row-personnel" style={{ borderRight: '1px solid var(--sapList_BorderColor)' }}>
         <div className="personnel-avatar" style={{ background: person.color }}>
           {person.avatar}
         </div>
         <div className="personnel-info">
-          <h4>{person.name}</h4>
-          <p>{person.role}</p>
+          <h4 style={{ color: 'var(--sapTextColor)' }}>{person.name}</h4>
+          <p style={{ color: 'var(--sapContent_LabelColor)' }}>{person.role}</p>
         </div>
       </div>
 
       <div className="row-timeline">
         {Array.from({ length: 24 }, (_, i) => (
-          <div key={i} className="timeline-cell" />
+          <div key={i} className="timeline-cell" style={{ borderRight: '1px solid var(--sapList_BorderColor)' }} />
         ))}
         {assignments.map(assignment => (
           <AssignmentBlock
@@ -89,7 +92,6 @@ export default function CalendarRow({ person, assignments, onAssign, onRemoveAss
             onRemove={onRemoveAssignment}
           />
         ))}
-        {/* Drop preview ghost */}
         {isDragOver && hoverHour !== null && (
           <div
             className="drop-preview"

@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import type { Personnel } from '../types';
-import { Plus, Pencil, Trash2, X, Check, User } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import './WorkOrderModal.css';
+import { Button, Card, Tag, Icon, FlexBox, Avatar, Dialog, Input, Select, Option, Label } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/add.js';
+import '@ui5/webcomponents-icons/dist/edit.js';
+import '@ui5/webcomponents-icons/dist/delete.js';
+import '@ui5/webcomponents-icons/dist/employee.js';
+import '@ui5/webcomponents-icons/dist/decline.js';
+import '@ui5/webcomponents-icons/dist/accept.js';
+import { motion } from 'framer-motion';
 import './PersonnelPage.css';
 
 interface PersonnelPageProps {
@@ -60,108 +65,154 @@ export default function PersonnelPage({ personnel, onAdd, onUpdate, onDelete }: 
   const removeSkill = (s: string) => setForm(f => ({ ...f, skills: f.skills.filter(x => x !== s) }));
 
   return (
-    <div className="personnel-page">
-      <div className="page-header">
+    <div className="personnel-page" style={{ backgroundColor: 'var(--sapBackgroundColor)', padding: '20px 24px', flex: 1, overflowY: 'auto' }}>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
-          <h2>Personel Yönetimi</h2>
-          <p>{personnel.length} personel kayıtlı</p>
+          <h2 style={{ color: 'var(--sapTextColor)', margin: 0 }}>Personel Yönetimi</h2>
+          <p style={{ color: 'var(--sapContent_LabelColor)', margin: '4px 0 0 0' }}>{personnel.length} personel kayıtlı</p>
         </div>
-        <motion.button className="btn btn-primary" onClick={openAdd} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-          <Plus size={16} /> Personel Ekle
-        </motion.button>
+        <Button design="Emphasized" icon="add" onClick={openAdd}>Personel Ekle</Button>
       </div>
 
-      <div className="personnel-grid">
+      <div className="personnel-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
         {personnel.map((p, i) => (
           <motion.div
             key={p.id}
-            className="personnel-card"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
           >
-            <div className="pc-top">
-              <div className="pc-avatar" style={{ background: p.color }}>{p.avatar}</div>
-              <div className="pc-info">
-                <div className="pc-name">{p.name}</div>
-                <div className="pc-role">{p.role}</div>
+            <Card style={{ width: '100%' }}>
+              <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <FlexBox justifyContent="SpaceBetween" alignItems="Start">
+                  <FlexBox alignItems="Center" style={{ gap: '12px' }}>
+                    <Avatar initials={p.avatar} colorScheme="Accent6" style={{ backgroundColor: p.color, width: '45px', height: '45px' }} />
+                    <div>
+                      <h4 style={{ margin: 0, color: 'var(--sapTextColor)', fontSize: '0.95rem' }}>{p.name}</h4>
+                      <p style={{ margin: '2px 0 0 0', color: 'var(--sapContent_LabelColor)', fontSize: '0.8rem' }}>{p.role}</p>
+                    </div>
+                  </FlexBox>
+                  <FlexBox style={{ gap: '4px' }}>
+                    <Button design="Transparent" icon="edit" style={{ width: '28px', height: '28px' }} onClick={() => openEdit(p)} />
+                    <Button design="Transparent" icon="delete" style={{ width: '28px', height: '28px' }} onClick={() => onDelete(p.id)} />
+                  </FlexBox>
+                </FlexBox>
+
+                <FlexBox wrap="Wrap" style={{ gap: '6px', minHeight: '30px' }}>
+                  {p.skills.map(s => (
+                    <Tag key={s} colorScheme="6">{s}</Tag>
+                  ))}
+                </FlexBox>
+
+                <div style={{ borderTop: '1px solid var(--sapList_BorderColor)', paddingTop: '8px', fontSize: '0.8rem', color: 'var(--sapContent_LabelColor)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Icon name="employee" style={{ width: '14px', height: '14px' }} />
+                  <span>Günlük Kapasite: <strong>{p.capacity} saat</strong></span>
+                </div>
               </div>
-              <div className="pc-actions">
-                <button className="icon-btn" onClick={() => openEdit(p)} title="Düzenle"><Pencil size={14} /></button>
-                <button className="icon-btn danger" onClick={() => onDelete(p.id)} title="Sil"><Trash2 size={14} /></button>
-              </div>
-            </div>
-            <div className="pc-skills">
-              {p.skills.map(s => <span key={s} className="skill-tag">{s}</span>)}
-            </div>
-            <div className="pc-footer">
-              <span className="pc-capacity"><User size={11} /> Kapasite: {p.capacity} saat/gün</span>
-            </div>
+            </Card>
           </motion.div>
         ))}
       </div>
 
-      <AnimatePresence>
-        {showModal && (
-          <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowModal(false)}>
-            <motion.div className="modal" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} onClick={e => e.stopPropagation()}>
-              <div className="modal-header">
-                <h3>{editing ? 'Personeli Düzenle' : 'Yeni Personel Ekle'}</h3>
-                <button className="close-btn" onClick={() => setShowModal(false)}><X size={20} /></button>
-              </div>
-              <div className="modal-body">
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Ad Soyad</label>
-                    <input className="form-control" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Ahmet Yılmaz" />
-                  </div>
-                  <div className="form-group">
-                    <label>Unvan / Rol</label>
-                    <input className="form-control" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))} placeholder="Elektrik Teknisyeni" />
-                  </div>
+      {showModal && (
+        <Dialog
+          open={true}
+          headerText={editing ? 'Personeli Düzenle' : 'Yeni Personel Ekle'}
+          onClose={() => setShowModal(false)}
+          style={{ width: '400px' }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '8px' }}>
+            <FlexBox style={{ gap: '12px' }}>
+              <FlexBox direction="Column" style={{ flex: 1, gap: '4px' }}>
+                <Label required>Ad Soyad</Label>
+                <Input
+                  value={form.name}
+                  placeholder="Ahmet Yılmaz"
+                  onInput={(e: any) => setForm(f => ({ ...f, name: e.target.value }))}
+                />
+              </FlexBox>
+              <FlexBox direction="Column" style={{ flex: 1, gap: '4px' }}>
+                <Label required>Unvan / Rol</Label>
+                <Input
+                  value={form.role}
+                  placeholder="Elektrik Teknisyeni"
+                  onInput={(e: any) => setForm(f => ({ ...f, role: e.target.value }))}
+                />
+              </FlexBox>
+            </FlexBox>
+
+            <FlexBox style={{ gap: '12px' }}>
+              <FlexBox direction="Column" style={{ flex: 1, gap: '4px' }}>
+                <Label>Kapasite (Saat)</Label>
+                <Select
+                  onChange={(e: any) => setForm(f => ({ ...f, capacity: Number(e.target.value) }))}
+                  style={{ width: '100%' }}
+                >
+                  {[4, 6, 8, 10, 12].map(h => (
+                    <Option key={h} value={String(h)} selected={form.capacity === h}>{h} saat</Option>
+                  ))}
+                </Select>
+              </FlexBox>
+              <FlexBox direction="Column" style={{ flex: 1, gap: '4px' }}>
+                <Label>Renk Etiketi</Label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px' }}>
+                  {COLORS.map(c => (
+                    <div
+                      key={c}
+                      onClick={() => setForm(f => ({ ...f, color: c }))}
+                      style={{
+                        width: '18px',
+                        height: '18px',
+                        borderRadius: '50%',
+                        backgroundColor: c,
+                        cursor: 'pointer',
+                        boxShadow: form.color === c ? '0 0 0 2px var(--sapContent_SelectedColor)' : 'none',
+                        border: '1px solid white'
+                      }}
+                    />
+                  ))}
                 </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Günlük Kapasite (Saat)</label>
-                    <select className="form-control" value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: +e.target.value }))}>
-                      {[4,6,8,10,12].map(h => <option key={h} value={h}>{h} saat</option>)}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Renk</label>
-                    <div className="color-picker">
-                      {COLORS.map(c => (
-                        <button key={c} className={`color-dot ${form.color === c ? 'selected' : ''}`} style={{ background: c }} onClick={() => setForm(f => ({ ...f, color: c }))} />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label>Yetkinlikler</label>
-                  <div className="skill-input-row">
-                    <input className="form-control" value={skillInput} onChange={e => setSkillInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addSkill())} placeholder="Yetkinlik ekle ve Enter'a bas" />
-                    <button className="btn btn-secondary" onClick={addSkill}><Plus size={14} /></button>
-                  </div>
-                  <div className="skills-list">
-                    {form.skills.map(s => (
-                      <span key={s} className="skill-tag removable">
-                        {s}
-                        <button onClick={() => removeSkill(s)}><X size={10} /></button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button className="btn btn-secondary" onClick={() => setShowModal(false)}>İptal</button>
-                  <button className="btn btn-primary" onClick={handleSave} disabled={!form.name.trim() || !form.role.trim()}>
-                    <Check size={14} /> Kaydet
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              </FlexBox>
+            </FlexBox>
+
+            <FlexBox direction="Column" style={{ gap: '4px' }}>
+              <Label>Yetkinlikler</Label>
+              <FlexBox style={{ gap: '8px', width: '100%' }}>
+                <Input
+                  value={skillInput}
+                  placeholder="Yetkinlik ekle"
+                  style={{ flex: 1 }}
+                  onInput={(e: any) => setSkillInput(e.target.value)}
+                  onKeyDown={(e: any) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addSkill();
+                    }
+                  }}
+                />
+                <Button icon="add" onClick={addSkill} />
+              </FlexBox>
+              <FlexBox wrap="Wrap" style={{ gap: '6px', marginTop: '8px' }}>
+                {form.skills.map(s => (
+                  <Tag
+                    key={s}
+                    colorScheme="6"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => removeSkill(s)}
+                  >
+                    {s} ✕
+                  </Tag>
+                ))}
+              </FlexBox>
+            </FlexBox>
+          </div>
+
+          <div slot="footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', padding: '12px 16px', width: '100%' }}>
+            <Button design="Transparent" onClick={() => setShowModal(false)}>İptal</Button>
+            <Button design="Emphasized" icon="accept" onClick={handleSave} disabled={!form.name.trim() || !form.role.trim()}>Kaydet</Button>
+          </div>
+        </Dialog>
+      )}
     </div>
   );
 }

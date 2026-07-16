@@ -1,14 +1,19 @@
 import { useState } from 'react';
 import type { Assignment } from '../types';
-import { X, Clock, Pencil } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import './AssignmentEditModal.css';
+import { Dialog, Button, Select, Option, Label, FlexBox, MessageStrip, Tag } from '@ui5/webcomponents-react';
 
 interface AssignmentEditModalProps {
   assignment: Assignment;
   onSave: (startHour: number, duration: number) => void;
   onClose: () => void;
 }
+
+const priorityScheme: Record<string, string> = {
+  critical: '1',
+  high:     '2',
+  medium:   '6',
+  low:      '3',
+};
 
 const priorityLabels: Record<string, string> = {
   critical: 'Kritik', high: 'Yüksek', medium: 'Orta', low: 'Düşük',
@@ -20,8 +25,7 @@ export default function AssignmentEditModal({ assignment, onSave, onClose }: Ass
 
   const endHour = startHour + duration;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = () => {
     if (endHour > 24) {
       alert('Bitiş saati 24:00\'ü geçemez.');
       return;
@@ -30,87 +34,59 @@ export default function AssignmentEditModal({ assignment, onSave, onClose }: Ass
   };
 
   return (
-    <AnimatePresence>
-      <motion.div
-        className="modal-overlay"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-      >
-        <motion.div
-          className="modal ae-modal"
-          initial={{ scale: 0.9, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="modal-header">
-            <div className="ae-header-content">
-              <Pencil size={16} />
-              <h3>Atamayı Düzenle</h3>
-            </div>
-            <button className="close-btn" onClick={onClose}><X size={18} /></button>
-          </div>
+    <Dialog
+      open={true}
+      headerText="Atamayı Düzenle"
+      onClose={onClose}
+      style={{ width: '400px' }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '8px' }}>
+        <FlexBox justifyContent="SpaceBetween" alignItems="Center">
+          <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--sapTextColor)' }}>{assignment.title}</span>
+          <Tag colorScheme={priorityScheme[assignment.priority]}>
+            {priorityLabels[assignment.priority]}
+          </Tag>
+        </FlexBox>
+        <span style={{ fontSize: '0.8rem', color: 'var(--sapContent_LabelColor)', marginTop: '-8px' }}>
+          {assignment.workOrderId} · {assignment.equipment}
+        </span>
 
-          <form className="modal-body" onSubmit={handleSubmit}>
-            <div className="ae-info-row">
-              <span className="ae-title">{assignment.title}</span>
-              <span className={`priority-badge priority-${assignment.priority}`}>
-                {priorityLabels[assignment.priority]}
-              </span>
-            </div>
-            <div className="ae-sub">{assignment.workOrderId} · {assignment.equipment}</div>
+        <MessageStrip design={endHour > 24 ? "Critical" : "Information"} hideCloseButton>
+          Planlanan Zaman: {String(startHour).padStart(2,'0')}:00 → {String(endHour).padStart(2,'0')}:00 ({duration} saat)
+          {endHour > 24 && ' (Günü geçiyor!)'}
+        </MessageStrip>
 
-            <div className="ae-time-preview">
-              <Clock size={16} />
-              <span className="ae-time-text">
-                {String(startHour).padStart(2,'0')}:00
-                <span className="ae-arrow"> → </span>
-                {String(endHour).padStart(2,'0')}:00
-              </span>
-              <span className="ae-duration-badge">{duration} saat</span>
-            </div>
+        <FlexBox style={{ gap: '12px' }}>
+          <FlexBox direction="Column" style={{ flex: 1, gap: '4px' }}>
+            <Label>Başlangıç Saati</Label>
+            <Select
+              onChange={(e: any) => setStartHour(Number(e.target.value))}
+              style={{ width: '100%' }}
+            >
+              {Array.from({ length: 24 }, (_, i) => (
+                <Option key={i} value={String(i)} selected={startHour === i}>{String(i).padStart(2,'0')}:00</Option>
+              ))}
+            </Select>
+          </FlexBox>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label>Başlangıç Saati</label>
-                <select
-                  className="form-control"
-                  value={startHour}
-                  onChange={(e) => setStartHour(Number(e.target.value))}
-                >
-                  {Array.from({ length: 24 }, (_, i) => (
-                    <option key={i} value={i}>{String(i).padStart(2,'0')}:00</option>
-                  ))}
-                </select>
-              </div>
+          <FlexBox direction="Column" style={{ flex: 1, gap: '4px' }}>
+            <Label>Süre (Saat)</Label>
+            <Select
+              onChange={(e: any) => setDuration(Number(e.target.value))}
+              style={{ width: '100%' }}
+            >
+              {Array.from({ length: 12 }, (_, i) => i + 1).map(h => (
+                <Option key={h} value={String(h)} selected={duration === h}>{h} saat</Option>
+              ))}
+            </Select>
+          </FlexBox>
+        </FlexBox>
+      </div>
 
-              <div className="form-group">
-                <label>Süre (Saat)</label>
-                <select
-                  className="form-control"
-                  value={duration}
-                  onChange={(e) => setDuration(Number(e.target.value))}
-                >
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map(h => (
-                    <option key={h} value={h}>{h} saat</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {endHour > 24 && (
-              <div className="ae-warning">⚠️ Bitiş saati 24:00'ü geçiyor!</div>
-            )}
-
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={onClose}>İptal</button>
-              <button type="submit" className="btn btn-primary" disabled={endHour > 24}>Kaydet</button>
-            </div>
-          </form>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+      <div slot="footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', padding: '12px 16px', width: '100%' }}>
+        <Button design="Transparent" onClick={onClose}>İptal</Button>
+        <Button design="Emphasized" onClick={handleSave} disabled={endHour > 24}>Kaydet</Button>
+      </div>
+    </Dialog>
   );
 }

@@ -10,6 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ui5/webcomponents": "^2.24.0",
+    "@ui5/webcomponents-fiori": "^2.24.0",
+    "@ui5/webcomponents-icons": "^2.24.0",
+    "@ui5/webcomponents-react": "^2.24.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.11.0",

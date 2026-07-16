@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import type { User } from '../types';
-import { Save, Bell, Palette, Globe, Shield } from 'lucide-react';
+import { Button, Card, FlexBox, Input, Label, Select, Option, Switch } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/save.js';
+import '@ui5/webcomponents-icons/dist/settings.js';
+import '@ui5/webcomponents-icons/dist/bell.js';
+import '@ui5/webcomponents-icons/dist/palette.js';
+import '@ui5/webcomponents-icons/dist/time-entry-request.js';
 import { motion } from 'framer-motion';
-import './WorkOrderModal.css';
 import './SettingsPage.css';
 
 interface SettingsPageProps {
@@ -24,101 +28,112 @@ export default function SettingsPage({ user, onUpdateUser }: SettingsPageProps) 
   };
 
   return (
-    <div className="settings-page">
-      <div className="page-header">
-        <div>
-          <h2>Ayarlar</h2>
-          <p>Uygulama ve profil ayarları</p>
-        </div>
+    <div className="settings-page" style={{ backgroundColor: 'var(--sapBackgroundColor)', padding: '20px 24px', flex: 1, overflowY: 'auto' }}>
+      <div className="page-header" style={{ marginBottom: '24px' }}>
+        <h2 style={{ color: 'var(--sapTextColor)', margin: 0 }}>Ayarlar</h2>
+        <p style={{ color: 'var(--sapContent_LabelColor)', margin: '4px 0 0 0' }}>Uygulama ve profil ayarları</p>
       </div>
 
-      <div className="settings-grid">
+      <div className="settings-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
         {/* Profile */}
-        <motion.div className="settings-card" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-          <div className="settings-card-title"><Shield size={16} /> Profil Bilgileri</div>
-          <div className="form-group">
-            <label>Ad Soyad</label>
-            <input className="form-control" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-          </div>
-          <div className="form-group">
-            <label>Unvan</label>
-            <input className="form-control" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))} />
-          </div>
-          <motion.button className="btn btn-primary save-btn" onClick={handleSave} whileTap={{ scale: 0.97 }}>
-            <Save size={14} />
-            {saved ? 'Kaydedildi ✓' : 'Kaydet'}
-          </motion.button>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+          <Card style={{ width: '100%' }}>
+            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--sapTextColor)' }}>Profil Bilgileri</h3>
+              <FlexBox direction="Column" style={{ gap: '4px' }}>
+                <Label>Ad Soyad</Label>
+                <Input value={form.name} onInput={(e: any) => setForm(f => ({ ...f, name: e.target.value }))} style={{ width: '100%' }} />
+              </FlexBox>
+              <FlexBox direction="Column" style={{ gap: '4px' }}>
+                <Label>Unvan</Label>
+                <Input value={form.role} onInput={(e: any) => setForm(f => ({ ...f, role: e.target.value }))} style={{ width: '100%' }} />
+              </FlexBox>
+              <Button design="Emphasized" icon="save" onClick={handleSave} style={{ width: '120px', marginTop: '8px' }}>
+                {saved ? 'Kaydedildi ✓' : 'Kaydet'}
+              </Button>
+            </div>
+          </Card>
         </motion.div>
 
         {/* Work hours */}
-        <motion.div className="settings-card" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <div className="settings-card-title"><Globe size={16} /> Çalışma Saatleri</div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Başlangıç Saati</label>
-              <select className="form-control" value={workHourStart} onChange={e => setWorkHourStart(+e.target.value)}>
-                {Array.from({ length: 12 }, (_, i) => i + 5).map(h => (
-                  <option key={h} value={h}>{String(h).padStart(2,'0')}:00</option>
-                ))}
-              </select>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <Card style={{ width: '100%' }}>
+            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--sapTextColor)' }}>Çalışma Saatleri</h3>
+              <FlexBox style={{ gap: '12px' }}>
+                <FlexBox direction="Column" style={{ flex: 1, gap: '4px' }}>
+                  <Label>Başlangıç Saati</Label>
+                  <Select onChange={(e: any) => setWorkHourStart(Number(e.target.value))} style={{ width: '100%' }}>
+                    {Array.from({ length: 12 }, (_, i) => i + 5).map(h => (
+                      <Option key={h} value={String(h)} selected={workHourStart === h}>{String(h).padStart(2,'0')}:00</Option>
+                    ))}
+                  </Select>
+                </FlexBox>
+                <FlexBox direction="Column" style={{ flex: 1, gap: '4px' }}>
+                  <Label>Bitiş Saati</Label>
+                  <Select onChange={(e: any) => setWorkHourEnd(Number(e.target.value))} style={{ width: '100%' }}>
+                    {Array.from({ length: 12 }, (_, i) => i + 14).map(h => (
+                      <Option key={h} value={String(h)} selected={workHourEnd === h}>{String(h).padStart(2,'0')}:00</Option>
+                    ))}
+                  </Select>
+                </FlexBox>
+              </FlexBox>
+              <span style={{ fontSize: '0.8rem', color: 'var(--sapContent_LabelColor)' }}>
+                Takvimde <strong>{String(workHourStart).padStart(2,'0')}:00 – {String(workHourEnd).padStart(2,'0')}:00</strong> arası gösterilecek.
+              </span>
             </div>
-            <div className="form-group">
-              <label>Bitiş Saati</label>
-              <select className="form-control" value={workHourEnd} onChange={e => setWorkHourEnd(+e.target.value)}>
-                {Array.from({ length: 12 }, (_, i) => i + 14).map(h => (
-                  <option key={h} value={h}>{String(h).padStart(2,'0')}:00</option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className="settings-info">
-            Takvimde <strong>{String(workHourStart).padStart(2,'0')}:00 – {String(workHourEnd).padStart(2,'0')}:00</strong> arası gösterilecek.
-          </div>
+          </Card>
         </motion.div>
 
         {/* Notifications */}
-        <motion.div className="settings-card" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-          <div className="settings-card-title"><Bell size={16} /> Bildirimler</div>
-          {[
-            { key: 'conflict', label: 'Çakışma uyarıları', desc: 'Atama çakışmalarında uyar' },
-            { key: 'newOrder', label: 'Yeni iş emri', desc: 'Yeni iş emri eklendiğinde bildir' },
-            { key: 'daily', label: 'Günlük özet', desc: 'Her sabah günlük plan özeti' },
-          ].map(item => (
-            <div key={item.key} className="toggle-row">
-              <div className="toggle-info">
-                <div className="toggle-label">{item.label}</div>
-                <div className="toggle-desc">{item.desc}</div>
-              </div>
-              <button
-                className={`toggle-btn ${notifications[item.key as keyof typeof notifications] ? 'on' : ''}`}
-                onClick={() => setNotifications(n => ({ ...n, [item.key]: !n[item.key as keyof typeof notifications] }))}
-              >
-                <div className="toggle-thumb" />
-              </button>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <Card style={{ width: '100%' }}>
+            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--sapTextColor)' }}>Bildirimler</h3>
+              {[
+                { key: 'conflict', label: 'Çakışma uyarıları', desc: 'Atama çakışmalarında uyar' },
+                { key: 'newOrder', label: 'Yeni iş emri', desc: 'Yeni iş emri eklendiğinde bildir' },
+                { key: 'daily', label: 'Günlük özet', desc: 'Her sabah günlük plan özeti' },
+              ].map(item => (
+                <FlexBox key={item.key} justifyContent="SpaceBetween" alignItems="Center" style={{ borderBottom: '1px solid var(--sapList_BorderColor)', paddingBottom: '12px' }}>
+                  <div>
+                    <Label style={{ fontWeight: 'bold', display: 'block' }}>{item.label}</Label>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)' }}>{item.desc}</span>
+                  </div>
+                  <Switch
+                    checked={notifications[item.key as keyof typeof notifications]}
+                    onChange={(e: any) => setNotifications(n => ({ ...n, [item.key]: e.target.checked }))}
+                  />
+                </FlexBox>
+              ))}
             </div>
-          ))}
+          </Card>
         </motion.div>
 
         {/* Appearance */}
-        <motion.div className="settings-card" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <div className="settings-card-title"><Palette size={16} /> Görünüm</div>
-          <div className="settings-info" style={{ marginTop: 0 }}>
-            Tema ve görünüm özelleştirme yakında eklenecek.
-          </div>
-          <div className="theme-preview">
-            <div className="theme-swatch active">
-              <div className="swatch-bar" style={{ background: 'linear-gradient(135deg, #0F2460, #1D4ED8)' }} />
-              <span>Varsayılan</span>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <Card style={{ width: '100%' }}>
+            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--sapTextColor)' }}>Görünüm</h3>
+              <span style={{ fontSize: '0.8rem', color: 'var(--sapContent_LabelColor)' }}>
+                Tema ve görünüm özelleştirme yakında eklenecek.
+              </span>
+              <div className="theme-preview" style={{ display: 'flex', gap: '10px' }}>
+                <div className="theme-swatch active" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <div className="swatch-bar" style={{ width: '60px', height: '35px', borderRadius: '4px', background: 'linear-gradient(135deg, #0F2460, #1D4ED8)' }} />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--sapTextColor)' }}>Varsayılan</span>
+                </div>
+                <div className="theme-swatch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <div className="swatch-bar" style={{ width: '60px', height: '35px', borderRadius: '4px', background: 'linear-gradient(135deg, #064E3B, #059669)' }} />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--sapTextColor)' }}>Yeşil</span>
+                </div>
+                <div className="theme-swatch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <div className="swatch-bar" style={{ width: '60px', height: '35px', borderRadius: '4px', background: 'linear-gradient(135deg, #4C1D95, #7C3AED)' }} />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--sapTextColor)' }}>Mor</span>
+                </div>
+              </div>
             </div>
-            <div className="theme-swatch">
-              <div className="swatch-bar" style={{ background: 'linear-gradient(135deg, #064E3B, #059669)' }} />
-              <span>Yeşil</span>
-            </div>
-            <div className="theme-swatch">
-              <div className="swatch-bar" style={{ background: 'linear-gradient(135deg, #4C1D95, #7C3AED)' }} />
-              <span>Mor</span>
-            </div>
-          </div>
+          </Card>
         </motion.div>
       </div>
     </div>

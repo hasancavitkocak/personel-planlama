@@ -1,6 +1,9 @@
-import { CalendarDays, ClipboardList, Users, BarChart2, Settings } from 'lucide-react';
-import { motion } from 'framer-motion';
-import './NavRail.css';
+import { SideNavigation, SideNavigationItem } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/calendar.js';
+import '@ui5/webcomponents-icons/dist/action-settings.js';
+import '@ui5/webcomponents-icons/dist/group.js';
+import '@ui5/webcomponents-icons/dist/manager.js';
+import '@ui5/webcomponents-icons/dist/activity-items.js';
 
 export type Page = 'calendar' | 'workorders' | 'personnel' | 'reports' | 'settings';
 
@@ -9,45 +12,48 @@ interface NavRailProps {
   onNavigate: (page: Page) => void;
 }
 
-const navItems: { page: Page; icon: React.ElementType; label: string }[] = [
-  { page: 'calendar',   icon: CalendarDays,  label: 'Takvim' },
-  { page: 'workorders', icon: ClipboardList, label: 'İş Emirleri' },
-  { page: 'personnel',  icon: Users,         label: 'Personel' },
-  { page: 'reports',    icon: BarChart2,      label: 'Raporlar' },
-  { page: 'settings',   icon: Settings,      label: 'Ayarlar' },
-];
-
 export default function NavRail({ activePage, onNavigate }: NavRailProps) {
-  return (
-    <nav className="nav-rail">
-      <div className="nav-rail-logo">
-        <div className="nav-logo-icon">
-          <CalendarDays size={20} />
-        </div>
-      </div>
+  const handleSelectionChange = (e: any) => {
+    const selectedPage = e.detail.item.dataset.page as Page;
+    if (selectedPage) {
+      onNavigate(selectedPage);
+    }
+  };
 
-      <div className="nav-rail-items">
-        {navItems.map(({ page, icon: Icon, label }) => (
-          <motion.button
-            key={page}
-            className={`nav-rail-item ${activePage === page ? 'active' : ''}`}
-            onClick={() => onNavigate(page)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            title={label}
-          >
-            {activePage === page && (
-              <motion.div
-                className="nav-active-bg"
-                layoutId="nav-active"
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              />
-            )}
-            <Icon size={20} />
-            <span className="nav-label">{label}</span>
-          </motion.button>
-        ))}
-      </div>
-    </nav>
+  return (
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+      <SideNavigation onSelectionChange={handleSelectionChange} style={{ height: '100%' }}>
+        <SideNavigationItem
+          text="Takvim"
+          icon="calendar"
+          data-page="calendar"
+          selected={activePage === 'calendar'}
+        />
+        <SideNavigationItem
+          text="İş Emirleri"
+          icon="activity-items"
+          data-page="workorders"
+          selected={activePage === 'workorders'}
+        />
+        <SideNavigationItem
+          text="Personel"
+          icon="group"
+          data-page="personnel"
+          selected={activePage === 'personnel'}
+        />
+        <SideNavigationItem
+          text="Raporlar"
+          icon="manager"
+          data-page="reports"
+          selected={activePage === 'reports'}
+        />
+        <SideNavigationItem
+          text="Ayarlar"
+          icon="action-settings"
+          data-page="settings"
+          selected={activePage === 'settings'}
+        />
+      </SideNavigation>
+    </div>
   );
 }
