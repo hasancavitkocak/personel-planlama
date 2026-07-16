@@ -38,7 +38,7 @@ export default function AssignmentEditModal({ assignment, onSave, onClose }: Ass
       open={true}
       headerText="Atamayı Düzenle"
       onClose={onClose}
-      style={{ width: '400px' }}
+      style={{ width: '500px' }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '8px' }}>
         <FlexBox justifyContent="SpaceBetween" alignItems="Center">

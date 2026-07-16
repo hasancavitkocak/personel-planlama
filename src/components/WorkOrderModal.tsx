@@ -48,7 +48,7 @@ export default function WorkOrderModal({ workOrder, onSave, onClose }: WorkOrder
       open={true}
       headerText={workOrder ? 'İş Emrini Düzenle' : 'Yeni İş Emri'}
       onClose={onClose}
-      style={{ width: '450px' }}
+      style={{ width: '600px' }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '8px' }}>
         <FlexBox style={{ gap: '12px' }}>
