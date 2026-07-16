@@ -264,9 +264,8 @@ export default function ReportsPage({ workOrders, assignments, personnel, calend
                       <span style={{ fontSize: '0.8rem', color: 'var(--sapContent_LabelColor)' }}>{s.label}</span>
                       <Icon name={s.icon} style={{ width: '16px', height: '16px', color: 'var(--sapContent_LabelColor)' }} />
                     </FlexBox>
-                    <FlexBox alignItems="Baseline" style={{ gap: '8px', marginTop: '8px' }}>
+                    <FlexBox alignItems="Baseline" style={{ marginTop: '8px' }}>
                       <span style={{ fontSize: '1.6rem', fontWeight: 'bold', color: 'var(--sapTextColor)' }}>{s.value}</span>
-                      {s.scheme !== 'None' && <Tag colorScheme={s.scheme} hideStateIcon>Durum</Tag>}
                     </FlexBox>
                   </FlexBox>
                 </Card>
