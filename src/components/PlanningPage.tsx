@@ -110,8 +110,6 @@ export default function PlanningPage({
 
   // Manual assignment dialog states
   const [isManualDialogOpen, setIsManualDialogOpen] = useState(false);
-  const [manualWoId, setManualWoId] = useState<string | null>(null);
-  const [manualPersonId, setManualPersonId] = useState<string | null>(null);
   const [manualDate, setManualDate] = useState('');
 
   // Auto Planning Dialog & Wizard States

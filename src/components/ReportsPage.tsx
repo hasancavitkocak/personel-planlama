@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import type { WorkOrder, Assignment, Personnel, PlanningCalendar } from '../types';
 import { Card, Tag, Icon, FlexBox, Avatar } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/activity-items.js';
@@ -10,7 +10,6 @@ import '@ui5/webcomponents-icons/dist/sys-enter-2.js';
 import '@ui5/webcomponents-icons/dist/employee.js';
 import '@ui5/webcomponents-icons/dist/slim-arrow-right.js';
 import { motion, AnimatePresence } from 'framer-motion';
-import { format, parseISO, eachDayOfInterval } from 'date-fns';
 import './ReportsPage.css';
 
 interface ReportsPageProps {
@@ -67,7 +66,6 @@ export default function ReportsPage({
   assignments,
   personnel,
   calendars,
-  activeCalendarId,
   customCapacities
 }: ReportsPageProps) {
   const [activeTab, setActiveTab] = useState<'calendar' | 'personnel'>('calendar');
