@@ -18,6 +18,7 @@ interface ReportsPageProps {
   personnel: Personnel[];
   calendars: PlanningCalendar[];
   activeCalendarId: string | null;
+  onActiveCalendarChange?: (id: string | null) => void;
   customCapacities: Record<string, number>;
 }
 
@@ -66,13 +67,15 @@ export default function ReportsPage({
   assignments,
   personnel,
   calendars,
+  activeCalendarId,
+  onActiveCalendarChange,
   customCapacities
 }: ReportsPageProps) {
   const [activeTab, setActiveTab] = useState<'calendar' | 'personnel'>('calendar');
   const [selectedPersonnelId, setSelectedPersonnelId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [timeFilter, setTimeFilter] = useState<'daily' | 'weekly' | 'monthly'>('daily');
-  const [selectedCalendarIdFilter, setSelectedCalendarIdFilter] = useState<string>('all');
+  const selectedCalendarIdFilter = activeCalendarId || 'all';
   const [selectedDayFilter, setSelectedDayFilter] = useState<string>('all');
   const [selectedWeekFilter, setSelectedWeekFilter] = useState<string>('all');
 
@@ -93,16 +96,16 @@ export default function ReportsPage({
   });
 
   // Overall Statistics
-  const totalOrders = filteredWorkOrders.length + filteredAssignments.length;
+  const totalOrders = filteredWorkOrders.length;
   const unassigned = filteredWorkOrders.filter(w => w.status === 'unassigned').length;
-  const assigned = filteredWorkOrders.filter(w => w.status === 'assigned').length;
+  const assigned = filteredWorkOrders.filter(w => w.status !== 'unassigned').length;
   const totalHours = filteredAssignments.reduce((s, a) => s + a.duration, 0);
 
   const today = new Date().toISOString().split('T')[0];
   const todayAssignments = filteredAssignments.filter(a => a.date === today);
 
   // Priority breakdown
-  const allItems = [...filteredWorkOrders, ...filteredAssignments];
+  const allItems = filteredWorkOrders;
   const priorityCounts = ['critical', 'high', 'medium', 'low'].map(p => ({
     label: priorityLabels[p],
     color: priorityColors[p],
@@ -221,7 +224,10 @@ export default function ReportsPage({
           <select
             value={selectedCalendarIdFilter}
             onChange={(e) => {
-              setSelectedCalendarIdFilter(e.target.value);
+              if (onActiveCalendarChange) {
+                const val = e.target.value;
+                onActiveCalendarChange(val === 'all' ? null : val);
+              }
               setSelectedPersonnelId(null);
               setSelectedDayFilter('all');
               setSelectedWeekFilter('all');

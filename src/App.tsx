@@ -214,6 +214,7 @@ function App() {
               personnel={personnelList}
               calendars={calendars}
               activeCalendarId={activeCalendarId}
+              onActiveCalendarChange={setActiveCalendarId}
               customCapacities={customCapacities}
             />
           </div>

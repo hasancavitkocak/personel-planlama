@@ -20,19 +20,19 @@ export const initialWorkOrders: WorkOrder[] = [
   {
     id: "WO-2024-001", title: "Pompa Bakımı", description: "P-101 santrifüj pompa periyodik bakımı",
     priority: "high", status: "completed", duration: 4, requiredSkill: "Mekanik",
-    location: "Üretim Sahası A", plannedDate: "2026-06-15", assignedTo: "P001",
+    location: "Üretim Sahası A", plannedDate: "2026-07-01", assignedTo: "P001",
     startHour: 9, equipment: "P-101", orderType: "PM01", workCenter: "Mekanik Atölye"
   },
   {
     id: "WO-2024-002", title: "Elektrik Pano Kontrolü", description: "MCC-05 motor kontrol merkezi bakımı",
     priority: "critical", status: "completed", duration: 3, requiredSkill: "Elektrik",
-    location: "Elektrik Odası", plannedDate: "2026-06-18", assignedTo: "P002",
+    location: "Elektrik Odası", plannedDate: "2026-07-02", assignedTo: "P002",
     startHour: 10, equipment: "MCC-05", orderType: "PM02", workCenter: "Elektrik Atölye"
   },
   {
     id: "WO-2024-003", title: "Vana Değişimi", description: "V-203 kontrol vanası değişimi",
     priority: "medium", status: "assigned", duration: 2, requiredSkill: "Mekanik",
-    location: "Boru Hattı B", plannedDate: "2026-05-05", assignedTo: "P003",
+    location: "Boru Hattı B", plannedDate: "2026-07-03", assignedTo: "P003",
     startHour: 14, equipment: "V-203", orderType: "PM01", workCenter: "Mekanik Atölye"
   },
   {
@@ -179,17 +179,17 @@ export const initialAssignments: Assignment[] = [
   },
   {
     id: "A-MOCK-001", workOrderId: "WO-2024-001", personnelId: "P001",
-    date: "2026-06-15", startHour: 9, duration: 4, status: "completed",
+    date: "2026-07-01", startHour: 9, duration: 4, status: "completed",
     title: "Pompa Bakımı", priority: "high", equipment: "P-101"
   },
   {
     id: "A-MOCK-002", workOrderId: "WO-2024-002", personnelId: "P002",
-    date: "2026-06-18", startHour: 10, duration: 3, status: "completed",
+    date: "2026-07-02", startHour: 10, duration: 3, status: "completed",
     title: "Elektrik Pano Kontrolü", priority: "critical", equipment: "MCC-05"
   },
   {
     id: "A-MOCK-003", workOrderId: "WO-2024-003", personnelId: "P003",
-    date: "2026-05-05", startHour: 14, duration: 2, status: "confirmed",
+    date: "2026-07-03", startHour: 14, duration: 2, status: "confirmed",
     title: "Vana Değişimi", priority: "medium", equipment: "V-203"
   },
   {
@@ -252,6 +252,6 @@ export const initialLeaveRecords: LeaveRecord[] = [
 ];
 
 export const initialCalendars: PlanningCalendar[] = [
-  { id: "C001", name: "A Tanımı", startDate: "2026-07-01", endDate: "2026-07-13", workOrderIds: ["WO-2024-001", "WO-2024-002", "WO-2024-003"] }
+  { id: "C001", name: "A Planı", startDate: "2026-07-01", endDate: "2026-07-13", workOrderIds: ["WO-2024-001", "WO-2024-002", "WO-2024-003"] }
 ];
 

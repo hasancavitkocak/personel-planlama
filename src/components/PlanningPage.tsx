@@ -662,7 +662,7 @@ export default function PlanningPage({
             <Label required>Takvim Adı</Label>
             <Input 
               value={calName} 
-              placeholder="Örn: A Tanımı" 
+              placeholder="Örn: A Planı" 
               onInput={(e: any) => setCalName(e.target.value)} 
             />
           </div>
