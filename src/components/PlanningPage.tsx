@@ -68,9 +68,9 @@ export default function PlanningPage({
   customCapacities,
   setCustomCapacities,
   busyPeriods,
-  setBusyPeriods,
+  setBusyPeriods: _setBusyPeriods,
   planningRules,
-  setPlanningRules
+  setPlanningRules: _setPlanningRules
 }: PlanningPageProps) {
   // Calendar Definition States
   const [calName, setCalName] = useState('');
@@ -89,6 +89,78 @@ export default function PlanningPage({
   // Section 3 Selection States
   const [selectedPlanWoIds, setSelectedPlanWoIds] = useState<string[]>([]);
   const [selectedPersonnelIds, setSelectedPersonnelIds] = useState<string[]>([]);
+
+  // Atama Algoritması Settings States
+  const [atamaStratejisi, setAtamaStratejisi] = useState('dengeli');
+  const [dagitimKurallari, setDagitimKurallari] = useState({
+    gunlukKapasite: true,
+    haftalikKapasite: true,
+    ayniEkipman: true,
+    ayniFloc: true,
+    kritikOncelik: true,
+    dueDate: true,
+    dengeliIsYuku: true
+  });
+  const [isSiralama, setIsSiralama] = useState([
+    'İş Önceliği',
+    'Planlanan Başlangıç Tarihi',
+    'Bitiş Tarihi (Due Date)',
+    'İş Süresi',
+    'İş Emri No'
+  ]);
+  const [cakismaKurallari, setCakismaKurallari] = useState({
+    zamanCakisma: true,
+    vardiyaDisi: true,
+    izinliPersonel: true,
+    devamsizPersonel: true,
+    calismaSaatiAsma: true
+  });
+
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+  const handleResetSettings = () => {
+    setAtamaStratejisi('dengeli');
+    setDagitimKurallari({
+      gunlukKapasite: true,
+      haftalikKapasite: true,
+      ayniEkipman: true,
+      ayniFloc: true,
+      kritikOncelik: true,
+      dueDate: true,
+      dengeliIsYuku: true
+    });
+    setIsSiralama([
+      'İş Önceliği',
+      'Planlanan Başlangıç Tarihi',
+      'Bitiş Tarihi (Due Date)',
+      'İş Süresi',
+      'İş Emri No'
+    ]);
+    setCakismaKurallari({
+      zamanCakisma: true,
+      vardiyaDisi: true,
+      izinliPersonel: true,
+      devamsizPersonel: true,
+      calismaSaatiAsma: true
+    });
+  };
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (index: number) => {
+    if (draggedIndex === null) return;
+    const reorderedList = [...isSiralama];
+    const draggedItem = reorderedList.splice(draggedIndex, 1)[0];
+    reorderedList.splice(index, 0, draggedItem);
+    setIsSiralama(reorderedList);
+    setDraggedIndex(null);
+  };
   
   const getCalendarTotalHours = (c: PlanningCalendar) => {
     const calWorkOrders = workOrders.filter(wo => c.workOrderIds.includes(wo.id));
@@ -120,33 +192,8 @@ export default function PlanningPage({
   const {
     ruleMergeHolidays,
     ruleConsiderWeekends,
-    ruleMaxTeamMembers,
-    ruleMaxTeamMembersVal,
-    ruleMinInterval,
-    ruleMinIntervalVal,
-    rulePrioritizeDevir,
-    ruleMinBlocks,
-    rulePreferBayram,
-    distributionType,
     planTarget
   } = planningRules;
-
-  // Setters delegating to global planningRules
-  const setRuleMergeHolidays = (val: boolean) => setPlanningRules(prev => ({ ...prev, ruleMergeHolidays: val }));
-  const setRuleConsiderWeekends = (val: boolean) => setPlanningRules(prev => ({ ...prev, ruleConsiderWeekends: val }));
-  const setRuleMaxTeamMembers = (val: boolean) => setPlanningRules(prev => ({ ...prev, ruleMaxTeamMembers: val }));
-  const setRuleMaxTeamMembersVal = (val: number) => setPlanningRules(prev => ({ ...prev, ruleMaxTeamMembersVal: val }));
-  const setRuleMinInterval = (val: boolean) => setPlanningRules(prev => ({ ...prev, ruleMinInterval: val }));
-  const setRuleMinIntervalVal = (val: number) => setPlanningRules(prev => ({ ...prev, ruleMinIntervalVal: val }));
-  const setRulePrioritizeDevir = (val: boolean) => setPlanningRules(prev => ({ ...prev, rulePrioritizeDevir: val }));
-  const setRuleMinBlocks = (val: boolean) => setPlanningRules(prev => ({ ...prev, ruleMinBlocks: val }));
-  const setRulePreferBayram = (val: boolean) => setPlanningRules(prev => ({ ...prev, rulePreferBayram: val }));
-  const setDistributionType = (val: 'ONCE' | 'TWICE' | 'THRICE' | 'SYSTEM') => setPlanningRules(prev => ({ ...prev, distributionType: val }));
-  const setPlanTarget = (val: 'ALL' | 'LEFT_20' | 'DEVIR' | 'SELECTED') => setPlanningRules(prev => ({ ...prev, planTarget: val }));
-
-  // Busy periods
-  const [busyStart, setBusyStart] = useState('2026-07-01');
-  const [busyEnd, setBusyEnd] = useState('2026-07-07');
 
   // Draft/Preview results
   const [planningPreview, setPlanningPreview] = useState<null | {
@@ -1175,278 +1222,267 @@ export default function PlanningPage({
       {isAutoPlanDialogOpen && (
         <Dialog
           open={true}
-          headerText="Otomatik Planlama"
           onClose={() => {
             setIsAutoPlanDialogOpen(false);
             setPlanningPreview(null);
           }}
-          style={{ width: '480px' }}
+          style={{ width: '960px', maxWidth: '95vw', maxHeight: '95vh' }}
         >
-          {/* Stepper Header */}
-          <div className="stepper-container">
-            <div className="step-line"></div>
-            <div className={`step-item ${autoPlanStep >= 1 ? 'active' : ''} ${autoPlanStep > 1 ? 'completed' : ''}`}>
-              <div className="step-circle">{autoPlanStep > 1 ? '✓' : '1'}</div>
-              <div className="step-label">Kurallar</div>
+          {/* Custom Header Slot */}
+          <div slot="header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%', padding: '16px 20px', borderBottom: '1px solid var(--sapList_BorderColor)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--sapTextColor)' }}>Atama Algoritması</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--sapContent_LabelColor)' }}>
+                Seçili Work Center için planlanmış işleri, personellere otomatik olarak atamak için algoritma ve kuralları belirleyin.
+              </span>
             </div>
-            <div className={`step-item ${autoPlanStep >= 2 ? 'active' : ''} ${autoPlanStep > 2 ? 'completed' : ''}`}>
-              <div className="step-circle">{autoPlanStep > 2 ? '✓' : '2'}</div>
-              <div className="step-label">Sonuç</div>
-            </div>
-            <div className={`step-item ${autoPlanStep >= 3 ? 'active' : ''}`}>
-              <div className="step-circle">3</div>
-              <div className="step-label">Onay</div>
-            </div>
+            <Button icon="decline" design="Transparent" onClick={() => {
+              setIsAutoPlanDialogOpen(false);
+              setPlanningPreview(null);
+            }} />
           </div>
 
           {autoPlanStep === 1 ? (
-            /* STEP 1: RULES BUILDER */
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '0 8px 16px 8px' }}>
-              {/* Who target */}
-              <div>
-                <span className="dialog-section-title">
-                  <Icon name="employee" style={{ width: '14px' }} /> Kimler planlansın?
-                </span>
-                <div className="radio-group-vertical">
-                  <label className="radio-row">
-                    <input 
-                      type="radio" 
-                      name="planTarget" 
-                      checked={planTarget === 'ALL'} 
-                      onChange={() => setPlanTarget('ALL')} 
-                    />
-                    <span>Tüm çalışanlar</span>
-                  </label>
-                  <label className="radio-row">
-                    <input 
-                      type="radio" 
-                      name="planTarget" 
-                      checked={planTarget === 'LEFT_20'} 
-                      onChange={() => setPlanTarget('LEFT_20')} 
-                    />
-                    <span>Kalan izni 20 günden fazla olanlar</span>
-                  </label>
-                  <label className="radio-row">
-                    <input 
-                      type="radio" 
-                      name="planTarget" 
-                      checked={planTarget === 'DEVIR'} 
-                      onChange={() => setPlanTarget('DEVIR')} 
-                    />
-                    <span>Devir izni bulunanlar</span>
-                  </label>
-                  <label className="radio-row">
-                    <input 
-                      type="radio" 
-                      name="planTarget" 
-                      checked={planTarget === 'SELECTED'} 
-                      onChange={() => setPlanTarget('SELECTED')} 
-                    />
-                    <span>Seçili çalışanlar ({selectedPersonnelIds.length} kişi)</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Planning Rules */}
-              <div>
-                <span className="dialog-section-title">
-                  <Icon name="calendar" style={{ width: '14px' }} /> Planlama Kuralları
-                </span>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label className="checkbox-row">
-                    <input 
-                      type="checkbox" 
-                      checked={ruleMergeHolidays} 
-                      onChange={(e) => setRuleMergeHolidays(e.target.checked)} 
-                    />
-                    <span>Resmi tatilleri birleştir</span>
-                  </label>
-
-                  <label className="checkbox-row">
-                    <input 
-                      type="checkbox" 
-                      checked={ruleConsiderWeekends} 
-                      onChange={(e) => setRuleConsiderWeekends(e.target.checked)} 
-                    />
-                    <span>Hafta sonlarını dikkate al</span>
-                  </label>
-
-                  <div className="checkbox-row" style={{ flexWrap: 'wrap', gap: '6px' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={ruleMaxTeamMembers} 
-                      onChange={(e) => setRuleMaxTeamMembers(e.target.checked)} 
-                    />
-                    <span>Aynı ekipten en fazla kişi izinli olsun:</span>
-                    <select 
-                      value={ruleMaxTeamMembersVal}
-                      onChange={(e) => setRuleMaxTeamMembersVal(Number(e.target.value))}
-                      style={{ padding: '2px 4px', border: '1px solid var(--border)', borderRadius: '4px' }}
-                    >
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                    </select>
+            /* STEP 1: RULES BUILDER - REDESIGNED 2x2 GRID */
+            <div>
+              <div className="atama-grid">
+                {/* 1. Atama Stratejisi */}
+                <div className="atama-card">
+                  <div className="atama-card-header">
+                    <span>1. Atama Stratejisi</span>
+                    <span className="info-icon-btn"><Icon name="message-information" style={{ width: '14px' }} /></span>
                   </div>
-
-                  <div className="checkbox-row" style={{ flexWrap: 'wrap', gap: '6px' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={ruleMinInterval} 
-                      onChange={(e) => setRuleMinInterval(e.target.checked)} 
-                    />
-                    <span>Aynı kişinin izinleri arasında en az:</span>
-                    <select 
-                      value={ruleMinIntervalVal}
-                      onChange={(e) => setRuleMinIntervalVal(Number(e.target.value))}
-                      style={{ padding: '2px 4px', border: '1px solid var(--border)', borderRadius: '4px' }}
-                    >
-                      <option value="15">15</option>
-                      <option value="30">30</option>
-                      <option value="45">45</option>
-                      <option value="60">60</option>
-                    </select>
-                    <span>gün olsun</span>
+                  <div className="atama-card-subtitle">İşler personellere hangi yaklaşımla dağıtılsın?</div>
+                  <div className="radio-group-vertical">
+                    <label className="radio-row">
+                      <input 
+                        type="radio" 
+                        name="strateji" 
+                        checked={atamaStratejisi === 'dengeli'} 
+                        onChange={() => setAtamaStratejisi('dengeli')} 
+                      />
+                      <span>Dengeli İş Yükü</span>
+                      <span className="badge-recommended">Önerilen</span>
+                    </label>
+                    <label className="radio-row">
+                      <input 
+                        type="radio" 
+                        name="strateji" 
+                        checked={atamaStratejisi === 'en_az'} 
+                        onChange={() => setAtamaStratejisi('en_az')} 
+                      />
+                      <span>En Az İş Yükü</span>
+                    </label>
+                    <label className="radio-row">
+                      <input 
+                        type="radio" 
+                        name="strateji" 
+                        checked={atamaStratejisi === 'yetkinlik'} 
+                        onChange={() => setAtamaStratejisi('yetkinlik')} 
+                      />
+                      <span>Yetkinlik Öncelikli</span>
+                    </label>
+                    <label className="radio-row">
+                      <input 
+                        type="radio" 
+                        name="strateji" 
+                        checked={atamaStratejisi === 'deneyim'} 
+                        onChange={() => setAtamaStratejisi('deneyim')} 
+                      />
+                      <span>Deneyim Öncelikli</span>
+                    </label>
+                    <label className="radio-row">
+                      <input 
+                        type="radio" 
+                        name="strateji" 
+                        checked={atamaStratejisi === 'rastgele'} 
+                        onChange={() => setAtamaStratejisi('rastgele')} 
+                      />
+                      <span>Rastgele Dağıt</span>
+                    </label>
                   </div>
+                </div>
 
-                  <label className="checkbox-row">
-                    <input 
-                      type="checkbox" 
-                      checked={rulePrioritizeDevir} 
-                      onChange={(e) => setRulePrioritizeDevir(e.target.checked)} 
-                    />
-                    <span>Devir izinlerini önce kullandır</span>
-                  </label>
+                {/* 2. Dağıtım Kuralları */}
+                <div className="atama-card">
+                  <div className="atama-card-header">
+                    <span>2. Dağıtım Kuralları</span>
+                    <span className="info-icon-btn"><Icon name="message-information" style={{ width: '14px' }} /></span>
+                  </div>
+                  <div className="atama-card-subtitle">İş dağıtımı sırasında aşağıdaki kurallara uyulsun.</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label className="checkbox-row">
+                      <input 
+                        type="checkbox" 
+                        checked={dagitimKurallari.gunlukKapasite} 
+                        onChange={(e) => setDagitimKurallari({...dagitimKurallari, gunlukKapasite: e.target.checked})} 
+                      />
+                      <span>Günlük kapasiteyi aşma</span>
+                    </label>
+                    <label className="checkbox-row">
+                      <input 
+                        type="checkbox" 
+                        checked={dagitimKurallari.haftalikKapasite} 
+                        onChange={(e) => setDagitimKurallari({...dagitimKurallari, haftalikKapasite: e.target.checked})} 
+                      />
+                      <span>Haftalık kapasiteyi aşma</span>
+                    </label>
+                    <label className="checkbox-row">
+                      <input 
+                        type="checkbox" 
+                        checked={dagitimKurallari.ayniEkipman} 
+                        onChange={(e) => setDagitimKurallari({...dagitimKurallari, ayniEkipman: e.target.checked})} 
+                      />
+                      <span>Aynı ekipman işlerini mümkünse aynı kişiye ata</span>
+                    </label>
+                    <label className="checkbox-row">
+                      <input 
+                        type="checkbox" 
+                        checked={dagitimKurallari.ayniFloc} 
+                        onChange={(e) => setDagitimKurallari({...dagitimKurallari, ayniFloc: e.target.checked})} 
+                      />
+                      <span>Aynı Functional Location işlerini grupla</span>
+                    </label>
+                    <label className="checkbox-row">
+                      <input 
+                        type="checkbox" 
+                        checked={dagitimKurallari.kritikOncelik} 
+                        onChange={(e) => setDagitimKurallari({...dagitimKurallari, kritikOncelik: e.target.checked})} 
+                      />
+                      <span>Kritik işleri önce dağıt</span>
+                    </label>
+                    <label className="checkbox-row">
+                      <input 
+                        type="checkbox" 
+                        checked={dagitimKurallari.dueDate} 
+                        onChange={(e) => setDagitimKurallari({...dagitimKurallari, dueDate: e.target.checked})} 
+                      />
+                      <span>Due Date'i yakın işleri önce dağıt</span>
+                    </label>
+                    <label className="checkbox-row">
+                      <input 
+                        type="checkbox" 
+                        checked={dagitimKurallari.dengeliIsYuku} 
+                        onChange={(e) => setDagitimKurallari({...dagitimKurallari, dengeliIsYuku: e.target.checked})} 
+                      />
+                      <span>İş yükünü mümkün olduğunca dengeli tut</span>
+                    </label>
+                  </div>
+                </div>
 
-                  <label className="checkbox-row">
-                    <input 
-                      type="checkbox" 
-                      checked={ruleMinBlocks} 
-                      onChange={(e) => setRuleMinBlocks(e.target.checked)} 
-                    />
-                    <span>En az 5 günlük bloklar oluştur</span>
-                  </label>
+                {/* 3. İş Sıralama Kuralı */}
+                <div className="atama-card">
+                  <div className="atama-card-header">
+                    <span>3. İş Sıralama Kuralı</span>
+                    <span className="info-icon-btn"><Icon name="message-information" style={{ width: '14px' }} /></span>
+                  </div>
+                  <div className="atama-card-subtitle">İşler hangi sıraya göre dağıtıma alınsın? Öncelik sırasını belirleyin.</div>
+                  <div className="atama-drag-list">
+                    {isSiralama.map((item, index) => (
+                      <div
+                        key={item}
+                        className={`atama-drag-item ${draggedIndex === index ? 'dragging' : ''}`}
+                        draggable
+                        onDragStart={() => handleDragStart(index)}
+                        onDragOver={handleDragOver}
+                        onDrop={() => handleDrop(index)}
+                      >
+                        <div className="atama-drag-item-left">
+                          <div className="atama-drag-handle">
+                            <Icon name="activity-items" style={{ width: '14px', height: '14px' }} />
+                          </div>
+                          <span>{item}</span>
+                        </div>
+                        <div className="atama-drag-item-number">{index + 1}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', color: 'var(--sapContent_LabelColor)', marginTop: '4px' }}>
+                    <Icon name="message-information" style={{ width: '12px', height: '12px' }} />
+                    <span>Sıralamayı değiştirmek için sürükleyip bırakın.</span>
+                  </div>
+                </div>
 
-                  <label className="checkbox-row">
-                    <input 
-                      type="checkbox" 
-                      checked={rulePreferBayram} 
-                      onChange={(e) => setRulePreferBayram(e.target.checked)} 
-                    />
-                    <span>Bayram haftalarını tercih et</span>
-                  </label>
+                {/* 4. Çakışma Kuralları */}
+                <div className="atama-card">
+                  <div className="atama-card-header">
+                    <span>4. Çakışma Kuralları</span>
+                    <span className="info-icon-btn"><Icon name="message-information" style={{ width: '14px' }} /></span>
+                  </div>
+                  <div className="atama-card-subtitle">Atama sırasında aşağıdaki çakışma durumları engellensin.</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label className="checkbox-row">
+                      <input 
+                        type="checkbox" 
+                        checked={cakismaKurallari.zamanCakisma} 
+                        onChange={(e) => setCakismaKurallari({...cakismaKurallari, zamanCakisma: e.target.checked})} 
+                      />
+                      <span>Aynı personele zaman çakışan işler atama</span>
+                    </label>
+                    <label className="checkbox-row">
+                      <input 
+                        type="checkbox" 
+                        checked={cakismaKurallari.vardiyaDisi} 
+                        onChange={(e) => setCakismaKurallari({...cakismaKurallari, vardiyaDisi: e.target.checked})} 
+                      />
+                      <span>Vardiya dışına taşan işleri atama</span>
+                    </label>
+                    <label className="checkbox-row">
+                      <input 
+                        type="checkbox" 
+                        checked={cakismaKurallari.izinliPersonel} 
+                        onChange={(e) => setCakismaKurallari({...cakismaKurallari, izinliPersonel: e.target.checked})} 
+                      />
+                      <span>İzinli personeli hariç tut</span>
+                    </label>
+                    <label className="checkbox-row">
+                      <input 
+                        type="checkbox" 
+                        checked={cakismaKurallari.devamsizPersonel} 
+                        onChange={(e) => setCakismaKurallari({...cakismaKurallari, devamsizPersonel: e.target.checked})} 
+                      />
+                      <span>Devamsız personeli hariç tut</span>
+                    </label>
+                    <label className="checkbox-row">
+                      <input 
+                        type="checkbox" 
+                        checked={cakismaKurallari.calismaSaatiAsma} 
+                        onChange={(e) => setCakismaKurallari({...cakismaKurallari, calismaSaatiAsma: e.target.checked})} 
+                      />
+                      <span>Günlük çalışma saatini aşma</span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
-              {/* Leave Distribution */}
-              <div>
-                <span className="dialog-section-title">
-                  <Icon name="employee" style={{ width: '14px' }} /> İzin Dağıtım Şekli
-                </span>
-                <div className="radio-group-vertical">
-                  <label className="radio-row">
-                    <input 
-                      type="radio" 
-                      name="distType" 
-                      checked={distributionType === 'ONCE'} 
-                      onChange={() => setDistributionType('ONCE')} 
-                    />
-                    <span>Tek seferde kullandır</span>
-                  </label>
-                  <label className="radio-row">
-                    <input 
-                      type="radio" 
-                      name="distType" 
-                      checked={distributionType === 'TWICE'} 
-                      onChange={() => setDistributionType('TWICE')} 
-                    />
-                    <span>İkiye böl</span>
-                  </label>
-                  <label className="radio-row">
-                    <input 
-                      type="radio" 
-                      name="distType" 
-                      checked={distributionType === 'THRICE'} 
-                      onChange={() => setDistributionType('THRICE')} 
-                    />
-                    <span>Üçe böl</span>
-                  </label>
-                  <label className="radio-row">
-                    <input 
-                      type="radio" 
-                      name="distType" 
-                      checked={distributionType === 'SYSTEM'} 
-                      onChange={() => setDistributionType('SYSTEM')} 
-                    />
-                    <span>Sistem uygun şekilde dağıtsın</span>
-                    <span className="badge-recommended">Önerilen</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Busy Periods */}
-              <div>
-                <span className="dialog-section-title">
-                  <Icon name="calendar" style={{ width: '14px' }} /> Yoğun Dönemler
-                </span>
-                <span className="card-subtitle">Bu dönemlerde izin verme</span>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
-                  <input 
-                    type="date" 
-                    value={busyStart}
-                    onChange={(e) => setBusyStart(e.target.value)}
-                    style={{ padding: '4px 6px', border: '1px solid var(--border)', borderRadius: '4px', flex: 1 }}
-                  />
-                  <span>-</span>
-                  <input 
-                    type="date" 
-                    value={busyEnd}
-                    onChange={(e) => setBusyEnd(e.target.value)}
-                    style={{ padding: '4px 6px', border: '1px solid var(--border)', borderRadius: '4px', flex: 1 }}
-                  />
+              {/* Action Buttons Footer Slot */}
+              <div className="atama-footer">
+                <Button 
+                  design="Transparent" 
+                  icon="refresh" 
+                  onClick={handleResetSettings}
+                >
+                  Ayarları Sıfırla
+                </Button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <Button 
+                    design="Transparent" 
+                    onClick={() => {
+                      setIsAutoPlanDialogOpen(false);
+                      setPlanningPreview(null);
+                    }}
+                  >
+                    İptal
+                  </Button>
                   <Button 
                     design="Emphasized" 
-                    onClick={() => {
-                      if (busyStart && busyEnd) {
-                        setBusyPeriods([...busyPeriods, { start: busyStart, end: busyEnd }]);
-                      }
-                    }}
-                    style={{ padding: '0 8px' }}
+                    icon="play" 
+                    onClick={handleRunAutoPlanning}
                   >
-                    + Ekle
+                    Otomatik Atamayı Başlat
                   </Button>
                 </div>
-
-                <div className="chips-list">
-                  {busyPeriods.map((bp, index) => (
-                    <div className="chip-item" key={index}>
-                      <span>{bp.start} - {bp.end}</span>
-                      <span 
-                        className="chip-close" 
-                        onClick={() => setBusyPeriods(busyPeriods.filter((_, idx) => idx !== index))}
-                      >
-                        ✕
-                      </span>
-                    </div>
-                  ))}
-                </div>
               </div>
-
-              {/* Run Planning Button */}
-              <Button 
-                design="Emphasized" 
-                onClick={handleRunAutoPlanning}
-                style={{ 
-                  marginTop: '12px', 
-                  width: '100%', 
-                  backgroundColor: 'var(--primary)',
-                  fontWeight: 'bold',
-                  height: '38px'
-                }}
-              >
-                Planlamayı Çalıştır
-              </Button>
             </div>
           ) : (
             /* STEP 2: PREVIEW DRAFT SUCCESS VIEW WITH SUMMARY */

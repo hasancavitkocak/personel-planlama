@@ -532,3 +532,129 @@
   margin-left: 8px;
 }
 
+/* Redesigned Atama Algoritması Dialog Layout */
+.atama-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+  background-color: var(--sapBackgroundColor);
+}
+
+.atama-card {
+  border: 1px solid var(--sapList_BorderColor);
+  border-radius: 8px;
+  padding: 14px;
+  background-color: rgba(255, 255, 255, 0.01);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.atama-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--sapTextColor);
+}
+
+.atama-card-subtitle {
+  font-size: 0.8rem;
+  color: var(--sapContent_LabelColor);
+  margin-top: -4px;
+  margin-bottom: 4px;
+}
+
+/* Drag & Drop Reorderable List styling */
+.atama-drag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.atama-drag-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--sapList_BorderColor);
+  border-radius: 6px;
+  cursor: grab;
+  font-size: 0.85rem;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.atama-drag-item:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: var(--sapContent_Selected_BorderColor);
+}
+
+.atama-drag-item:active {
+  cursor: grabbing;
+}
+
+.atama-drag-item.dragging {
+  opacity: 0.4;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-style: dashed;
+}
+
+.atama-drag-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--sapTextColor);
+}
+
+.atama-drag-handle {
+  display: flex;
+  align-items: center;
+  opacity: 0.4;
+  color: var(--sapTextColor);
+}
+
+.atama-drag-item-number {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--sapList_BorderColor);
+  color: var(--sapContent_LabelColor);
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* Info Icon styling */
+.info-icon-btn {
+  color: var(--sapContent_LabelColor);
+  opacity: 0.7;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-icon-btn:hover {
+  opacity: 1;
+}
+
+/* Dialog actions footer */
+.atama-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-top: 1px solid var(--sapList_BorderColor);
+  width: 100%;
+}
+
+
