@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { WorkOrder, Assignment, Personnel, PlanningCalendar } from '../types';
 import { Card, Tag, Icon, FlexBox, Avatar } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/activity-items.js';
@@ -10,6 +10,7 @@ import '@ui5/webcomponents-icons/dist/sys-enter-2.js';
 import '@ui5/webcomponents-icons/dist/employee.js';
 import '@ui5/webcomponents-icons/dist/slim-arrow-right.js';
 import { motion, AnimatePresence } from 'framer-motion';
+import { format, parseISO, eachDayOfInterval } from 'date-fns';
 import './ReportsPage.css';
 
 interface ReportsPageProps {
@@ -17,6 +18,8 @@ interface ReportsPageProps {
   assignments: Assignment[];
   personnel: Personnel[];
   calendars: PlanningCalendar[];
+  activeCalendarId: string | null;
+  customCapacities: Record<string, number>;
 }
 
 const priorityLabels: Record<string, string> = { critical: 'Kritik', high: 'Yüksek', medium: 'Orta', low: 'Düşük' };
@@ -59,7 +62,14 @@ const getMonthLabel = (dateStr: string) => {
 
 
 
-export default function ReportsPage({ workOrders, assignments, personnel, calendars }: ReportsPageProps) {
+export default function ReportsPage({
+  workOrders,
+  assignments,
+  personnel,
+  calendars,
+  activeCalendarId,
+  customCapacities
+}: ReportsPageProps) {
   const [activeTab, setActiveTab] = useState<'calendar' | 'personnel'>('calendar');
   const [selectedPersonnelId, setSelectedPersonnelId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -103,36 +113,49 @@ export default function ReportsPage({ workOrders, assignments, personnel, calend
   const maxPriority = Math.max(...priorityCounts.map(p => p.count), 1);
 
   // Personnel workload and statistics
-  const personnelStats = personnel.map(p => {
-    const todayHours = todayAssignments.filter(a => a.personnelId === p.id).reduce((s, a) => s + a.duration, 0);
-    const pAssignments = filteredAssignments.filter(a => a.personnelId === p.id);
-    const totalPersonHours = pAssignments.reduce((s, a) => s + a.duration, 0);
-    
-    // Status counts
-    const totalTasks = pAssignments.length;
-    const completedTasks = pAssignments.filter(a => a.status === 'completed').length;
-    const pendingTasks = pAssignments.filter(a => a.status !== 'completed').length;
-    
-    const completedHours = pAssignments.filter(a => a.status === 'completed').reduce((s, a) => s + a.duration, 0);
-    const pendingHours = pAssignments.filter(a => a.status !== 'completed').reduce((s, a) => s + a.duration, 0);
+  const personnelStats = useMemo(() => {
+    return personnel.map(p => {
+      const todayHours = todayAssignments.filter(a => a.personnelId === p.id).reduce((s, a) => s + a.duration, 0);
+      const pAssignments = filteredAssignments.filter(a => a.personnelId === p.id);
+      const totalPersonHours = pAssignments.reduce((s, a) => s + a.duration, 0);
+      
+      // Status counts
+      const totalTasks = pAssignments.length;
+      const completedTasks = pAssignments.filter(a => a.status === 'completed').length;
+      const pendingTasks = pAssignments.filter(a => a.status !== 'completed').length;
+      
+      const completedHours = pAssignments.filter(a => a.status === 'completed').reduce((s, a) => s + a.duration, 0);
+      const pendingHours = pAssignments.filter(a => a.status !== 'completed').reduce((s, a) => s + a.duration, 0);
 
-    const { firstName, lastName } = splitName(p.name);
+      const { firstName, lastName } = splitName(p.name);
 
-    return { 
-      ...p, 
-      firstName,
-      lastName,
-      todayHours, 
-      totalPersonHours,
-      totalTasks,
-      completedTasks,
-      pendingTasks,
-      completedHours,
-      pendingHours
-    };
-  }).sort((a, b) => b.totalPersonHours - a.totalPersonHours);
+      // Capacity & Occupancy Calculation
+      const capacity = selectedCalendarIdFilter !== 'all' && activeCalendar
+        ? (customCapacities[p.id] ?? 58)
+        : (p.capacity * 8); // fallback to daily capacity * 8 if no active calendar
 
-  const maxLoad = Math.max(...personnelStats.map(p => p.totalPersonHours), 1);
+      const occupancyRate = capacity > 0 ? Math.round((totalPersonHours / capacity) * 100) : 0;
+
+      return { 
+        ...p, 
+        firstName,
+        lastName,
+        todayHours, 
+        totalPersonHours,
+        totalTasks,
+        completedTasks,
+        pendingTasks,
+        completedHours,
+        pendingHours,
+        capacity,
+        occupancyRate
+      };
+    }).sort((a, b) => b.totalPersonHours - a.totalPersonHours);
+  }, [personnel, todayAssignments, filteredAssignments, selectedCalendarIdFilter, activeCalendar, customCapacities]);
+
+  const maxLoad = useMemo(() => {
+    return Math.max(...personnelStats.map(p => p.totalPersonHours), 1);
+  }, [personnelStats]);
 
   const statCards = [
     { label: 'Toplam İş Emri', value: totalOrders, icon: 'activity-items', scheme: 'None' },
@@ -628,8 +651,10 @@ export default function ReportsPage({ workOrders, assignments, personnel, calend
                           <th>Adı</th>
                           <th>Soyadı</th>
                           <th>Grup / Rol</th>
-                          <th style={{ textAlign: 'center' }}>Toplam İş</th>
+                          <th style={{ textAlign: 'center' }}>Kapasite</th>
                           <th style={{ textAlign: 'center' }}>Toplam Süre (Saat)</th>
+                          <th style={{ width: '140px' }}>Doluluk Oranı</th>
+                          <th style={{ textAlign: 'center' }}>Toplam İş</th>
                           <th style={{ textAlign: 'center' }}>Tamamlanan (Saat)</th>
                           <th style={{ textAlign: 'center' }}>Bekleyen (Saat)</th>
                           <th style={{ textAlign: 'center' }}>Detay</th>
@@ -638,33 +663,54 @@ export default function ReportsPage({ workOrders, assignments, personnel, calend
                       <tbody>
                         {filteredPersonnel.length === 0 ? (
                           <tr>
-                            <td colSpan={8} style={{ padding: '24px', textAlign: 'center', color: 'var(--sapContent_LabelColor)' }}>Aranan kriterlere uygun personel bulunamadı.</td>
+                            <td colSpan={10} style={{ padding: '24px', textAlign: 'center', color: 'var(--sapContent_LabelColor)' }}>Aranan kriterlere uygun personel bulunamadı.</td>
                           </tr>
                         ) : (
-                          filteredPersonnel.map((p) => (
-                            <tr key={p.id} className="personnel-table-row">
-                              <td>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <Avatar initials={p.avatar} colorScheme="Accent6" style={{ backgroundColor: p.color, width: '28px', height: '28px', fontSize: '11px' }} />
-                                  <span style={{ fontWeight: '500' }}>{p.firstName}</span>
-                                </div>
-                              </td>
-                              <td style={{ fontWeight: '500' }}>{p.lastName}</td>
-                              <td style={{ color: 'var(--sapContent_LabelColor)' }}>{p.role}</td>
-                              <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{p.totalTasks}</td>
-                              <td style={{ textAlign: 'center' }}>{p.totalPersonHours} sa</td>
-                              <td style={{ textAlign: 'center', color: '#16A34A', fontWeight: 'bold' }}>{p.completedHours} sa</td>
-                              <td style={{ textAlign: 'center', color: '#D97706', fontWeight: 'bold' }}>{p.pendingHours} sa</td>
-                              <td style={{ textAlign: 'center' }}>
-                                <button 
-                                  onClick={() => setSelectedPersonnelId(p.id)}
-                                  className="detail-action-btn"
-                                >
-                                  Detay <Icon name="slim-arrow-right" style={{ width: '12px', height: '12px' }} />
-                                </button>
-                              </td>
-                            </tr>
-                          ))
+                          filteredPersonnel.map((p) => {
+                            const limitColorClass = p.occupancyRate > 90 ? 'high' : p.occupancyRate > 60 ? 'medium' : 'low';
+                            return (
+                              <tr key={p.id} className="personnel-table-row">
+                                <td>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Avatar initials={p.avatar} colorScheme="Accent6" style={{ backgroundColor: p.color, width: '28px', height: '28px', fontSize: '11px' }} />
+                                    <span style={{ fontWeight: '500' }}>{p.firstName}</span>
+                                  </div>
+                                </td>
+                                <td style={{ fontWeight: '500' }}>{p.lastName}</td>
+                                <td style={{ color: 'var(--sapContent_LabelColor)' }}>{p.role}</td>
+                                <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{p.capacity} sa</td>
+                                <td style={{ textAlign: 'center' }}>{p.totalPersonHours} sa</td>
+                                <td style={{ minWidth: '130px' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 'bold', marginBottom: '2px' }}>
+                                    <span>%{p.occupancyRate}</span>
+                                    <span>{p.totalPersonHours}/{p.capacity}s</span>
+                                  </div>
+                                  <div className="occupancy-bar-container" style={{ width: '100%', height: '6px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
+                                    <div 
+                                      className={`occupancy-bar ${limitColorClass}`} 
+                                      style={{ 
+                                        width: `${Math.min(100, p.occupancyRate)}%`,
+                                        height: '100%',
+                                        borderRadius: '3px',
+                                        backgroundColor: limitColorClass === 'high' ? '#DC2626' : limitColorClass === 'medium' ? '#D97706' : '#16A34A'
+                                      }} 
+                                    />
+                                  </div>
+                                </td>
+                                <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{p.totalTasks}</td>
+                                <td style={{ textAlign: 'center', color: '#16A34A', fontWeight: 'bold' }}>{p.completedHours} sa</td>
+                                <td style={{ textAlign: 'center', color: '#D97706', fontWeight: 'bold' }}>{p.pendingHours} sa</td>
+                                <td style={{ textAlign: 'center' }}>
+                                  <button 
+                                    onClick={() => setSelectedPersonnelId(p.id)}
+                                    className="detail-action-btn"
+                                  >
+                                    Detay <Icon name="slim-arrow-right" style={{ width: '12px', height: '12px' }} />
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })
                         )}
                       </tbody>
                     </table>
@@ -709,7 +755,7 @@ export default function ReportsPage({ workOrders, assignments, personnel, calend
                           <div style={{ display: 'flex', gap: '16px', marginTop: '6px', flexWrap: 'wrap', fontSize: '0.85rem', color: 'var(--sapContent_LabelColor)' }}>
                             <span>Grup/Rol: <strong style={{ color: 'var(--sapTextColor)' }}>{selectedPerson.role}</strong></span>
                             {selectedPerson.workCenter && <span>Atölye: <strong style={{ color: 'var(--sapTextColor)' }}>{selectedPerson.workCenter}</strong></span>}
-                            <span>Günlük Kapasite: <strong style={{ color: 'var(--sapTextColor)' }}>{selectedPerson.capacity} saat</strong></span>
+                            <span>{selectedCalendarIdFilter !== 'all' ? 'Dönemsel Kapasite' : 'Günlük Kapasite'}: <strong style={{ color: 'var(--sapTextColor)' }}>{selectedCalendarIdFilter !== 'all' ? `${selectedPerson.capacity} saat` : `${selectedPerson.capacity} saat/gün`}</strong></span>
                           </div>
                           <div style={{ display: 'flex', gap: '6px', marginTop: '10px', flexWrap: 'wrap' }}>
                             {selectedPerson.skills.map(s => (
@@ -721,17 +767,23 @@ export default function ReportsPage({ workOrders, assignments, personnel, calend
                     </Card>
 
                     {/* Specific Personal Stats */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '20px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '16px', marginBottom: '20px' }}>
                       <Card style={{ height: '90px' }}>
                         <div style={{ padding: '12px 16px' }}>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)' }}>Toplam Atanan İş</div>
-                          <div style={{ fontSize: '1.4rem', fontWeight: 'bold', marginTop: '4px', color: 'var(--sapTextColor)' }}>{selectedPerson.totalTasks} Adet</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)' }}>{selectedCalendarIdFilter !== 'all' ? 'Dönemsel Kapasite' : 'Hesaplanan Kapasite'}</div>
+                          <div style={{ fontSize: '1.4rem', fontWeight: 'bold', marginTop: '4px', color: 'var(--sapTextColor)' }}>{selectedPerson.capacity} Saat</div>
                         </div>
                       </Card>
                       <Card style={{ height: '90px' }}>
                         <div style={{ padding: '12px 16px' }}>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)' }}>Toplam İş Süresi</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)' }}>Toplam Planlı Süre</div>
                           <div style={{ fontSize: '1.4rem', fontWeight: 'bold', marginTop: '4px', color: 'var(--sapTextColor)' }}>{selectedPerson.totalPersonHours} Saat</div>
+                        </div>
+                      </Card>
+                      <Card style={{ height: '90px' }}>
+                        <div style={{ padding: '12px 16px' }}>
+                          <div style={{ fontSize: '0.75rem', color: selectedPerson.occupancyRate > 90 ? '#DC2626' : selectedPerson.occupancyRate > 60 ? '#D97706' : '#16A34A' }}>Doluluk Oranı</div>
+                          <div style={{ fontSize: '1.4rem', fontWeight: 'bold', marginTop: '4px', color: selectedPerson.occupancyRate > 90 ? '#DC2626' : selectedPerson.occupancyRate > 60 ? '#D97706' : '#16A34A' }}>%{selectedPerson.occupancyRate}</div>
                         </div>
                       </Card>
                       <Card style={{ height: '90px' }}>

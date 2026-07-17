@@ -20,6 +20,38 @@ interface PlanningPageProps {
   calendars: PlanningCalendar[];
   setCalendars: React.Dispatch<React.SetStateAction<PlanningCalendar[]>>;
   leaveRecords: LeaveRecord[];
+  activeCalendarId: string | null;
+  setActiveCalendarId: (id: string | null) => void;
+  customCapacities: Record<string, number>;
+  setCustomCapacities: React.Dispatch<React.SetStateAction<Record<string, number>>>;
+  busyPeriods: Array<{ start: string; end: string }>;
+  setBusyPeriods: React.Dispatch<React.SetStateAction<Array<{ start: string; end: string }>>>;
+  planningRules: {
+    ruleMergeHolidays: boolean;
+    ruleConsiderWeekends: boolean;
+    ruleMaxTeamMembers: boolean;
+    ruleMaxTeamMembersVal: number;
+    ruleMinInterval: boolean;
+    ruleMinIntervalVal: number;
+    rulePrioritizeDevir: boolean;
+    ruleMinBlocks: boolean;
+    rulePreferBayram: boolean;
+    distributionType: 'ONCE' | 'TWICE' | 'THRICE' | 'SYSTEM';
+    planTarget: 'ALL' | 'LEFT_20' | 'DEVIR' | 'SELECTED';
+  };
+  setPlanningRules: React.Dispatch<React.SetStateAction<{
+    ruleMergeHolidays: boolean;
+    ruleConsiderWeekends: boolean;
+    ruleMaxTeamMembers: boolean;
+    ruleMaxTeamMembersVal: number;
+    ruleMinInterval: boolean;
+    ruleMinIntervalVal: number;
+    rulePrioritizeDevir: boolean;
+    ruleMinBlocks: boolean;
+    rulePreferBayram: boolean;
+    distributionType: 'ONCE' | 'TWICE' | 'THRICE' | 'SYSTEM';
+    planTarget: 'ALL' | 'LEFT_20' | 'DEVIR' | 'SELECTED';
+  }>>;
 }
 
 export default function PlanningPage({
@@ -30,13 +62,23 @@ export default function PlanningPage({
   personnel,
   calendars,
   setCalendars,
-  leaveRecords
+  leaveRecords,
+  activeCalendarId,
+  setActiveCalendarId,
+  customCapacities,
+  setCustomCapacities,
+  busyPeriods,
+  setBusyPeriods,
+  planningRules,
+  setPlanningRules
 }: PlanningPageProps) {
   // Calendar Definition States
   const [calName, setCalName] = useState('');
   const [calStart, setCalStart] = useState('2026-07-01');
   const [calEnd, setCalEnd] = useState('2026-07-13');
-  const [selectedCalId, setSelectedCalId] = useState<string | null>(calendars[0]?.id || null);
+  
+  const selectedCalId = activeCalendarId;
+  const setSelectedCalId = setActiveCalendarId;
 
   // Section 2 Filters & Selections
   const [filterOrderType, setFilterOrderType] = useState('ALL');
@@ -48,16 +90,6 @@ export default function PlanningPage({
   const [selectedPlanWoIds, setSelectedPlanWoIds] = useState<string[]>([]);
   const [selectedPersonnelIds, setSelectedPersonnelIds] = useState<string[]>([]);
   
-  // Custom capacities (defaults to 58)
-  const [customCapacities, setCustomCapacities] = useState<Record<string, number>>({
-    P001: 58,
-    P002: 43,
-    P003: 42,
-    P004: 58,
-    P005: 58,
-    P006: 58
-  });
-
   const getCalendarTotalHours = (c: PlanningCalendar) => {
     const calWorkOrders = workOrders.filter(wo => c.workOrderIds.includes(wo.id));
     return calWorkOrders.reduce((sum, wo) => sum + wo.duration, 0);
@@ -85,29 +117,38 @@ export default function PlanningPage({
   // Auto Planning Dialog & Wizard States
   const [isAutoPlanDialogOpen, setIsAutoPlanDialogOpen] = useState(false);
   const [autoPlanStep, setAutoPlanStep] = useState(1);
-  const [planTarget, setPlanTarget] = useState<'ALL' | 'LEFT_20' | 'DEVIR' | 'SELECTED'>('ALL');
-  
-  // Rules configuration
-  const [ruleMergeHolidays, setRuleMergeHolidays] = useState(true);
-  const [ruleConsiderWeekends, setRuleConsiderWeekends] = useState(true);
-  const [ruleMaxTeamMembers, setRuleMaxTeamMembers] = useState(true);
-  const [ruleMaxTeamMembersVal, setRuleMaxTeamMembersVal] = useState(2);
-  const [ruleMinInterval, setRuleMinInterval] = useState(true);
-  const [ruleMinIntervalVal, setRuleMinIntervalVal] = useState(30);
-  const [rulePrioritizeDevir, setRulePrioritizeDevir] = useState(true);
-  const [ruleMinBlocks, setRuleMinBlocks] = useState(true);
-  const [rulePreferBayram, setRulePreferBayram] = useState(true);
 
-  // Distribution settings
-  const [distributionType, setDistributionType] = useState<'ONCE' | 'TWICE' | 'THRICE' | 'SYSTEM'>('SYSTEM');
+  // Destructure global planning rules
+  const {
+    ruleMergeHolidays,
+    ruleConsiderWeekends,
+    ruleMaxTeamMembers,
+    ruleMaxTeamMembersVal,
+    ruleMinInterval,
+    ruleMinIntervalVal,
+    rulePrioritizeDevir,
+    ruleMinBlocks,
+    rulePreferBayram,
+    distributionType,
+    planTarget
+  } = planningRules;
+
+  // Setters delegating to global planningRules
+  const setRuleMergeHolidays = (val: boolean) => setPlanningRules(prev => ({ ...prev, ruleMergeHolidays: val }));
+  const setRuleConsiderWeekends = (val: boolean) => setPlanningRules(prev => ({ ...prev, ruleConsiderWeekends: val }));
+  const setRuleMaxTeamMembers = (val: boolean) => setPlanningRules(prev => ({ ...prev, ruleMaxTeamMembers: val }));
+  const setRuleMaxTeamMembersVal = (val: number) => setPlanningRules(prev => ({ ...prev, ruleMaxTeamMembersVal: val }));
+  const setRuleMinInterval = (val: boolean) => setPlanningRules(prev => ({ ...prev, ruleMinInterval: val }));
+  const setRuleMinIntervalVal = (val: number) => setPlanningRules(prev => ({ ...prev, ruleMinIntervalVal: val }));
+  const setRulePrioritizeDevir = (val: boolean) => setPlanningRules(prev => ({ ...prev, rulePrioritizeDevir: val }));
+  const setRuleMinBlocks = (val: boolean) => setPlanningRules(prev => ({ ...prev, ruleMinBlocks: val }));
+  const setRulePreferBayram = (val: boolean) => setPlanningRules(prev => ({ ...prev, rulePreferBayram: val }));
+  const setDistributionType = (val: 'ONCE' | 'TWICE' | 'THRICE' | 'SYSTEM') => setPlanningRules(prev => ({ ...prev, distributionType: val }));
+  const setPlanTarget = (val: 'ALL' | 'LEFT_20' | 'DEVIR' | 'SELECTED') => setPlanningRules(prev => ({ ...prev, planTarget: val }));
 
   // Busy periods
   const [busyStart, setBusyStart] = useState('2026-07-01');
   const [busyEnd, setBusyEnd] = useState('2026-07-07');
-  const [busyPeriods, setBusyPeriods] = useState<Array<{ start: string; end: string }>>([
-    { start: '2026-09-01', end: '2026-09-30' },
-    { start: '2026-12-15', end: '2026-12-31' }
-  ]);
 
   // Draft/Preview results
   const [planningPreview, setPlanningPreview] = useState<null | {
@@ -479,76 +520,98 @@ export default function PlanningPage({
 
   // Open Manual Dialog
   const handleOpenManualDialog = () => {
-    if (selectedPlanWoIds.length !== 1 || selectedPersonnelIds.length !== 1) {
-      alert("Lütfen planlama için tam olarak 1 iş ve 1 personel seçin!");
+    if (selectedPlanWoIds.length === 0 || selectedPersonnelIds.length === 0) {
+      alert("Lütfen planlama için en az 1 iş ve en az 1 personel seçin!");
       return;
     }
-    setManualWoId(selectedPlanWoIds[0]);
-    setManualPersonId(selectedPersonnelIds[0]);
     setManualDate(activeCalendarDays[0] || '');
     setIsManualDialogOpen(true);
   };
 
-  // Execute Manual Assignment
+  // Execute Manual Assignment for multiple work orders and personnel
   const handleManualAssign = () => {
-    if (!manualWoId || !manualPersonId || !manualDate) return;
+    if (selectedPlanWoIds.length === 0 || selectedPersonnelIds.length === 0 || !manualDate) return;
 
-    if (isPersonOnLeave(manualPersonId, manualDate)) {
-      alert("⚠️ Bu personel seçilen tarihte izinlidir! İzinli günlerde planlama yapılamaz.");
-      return;
-    }
+    const newAssignmentsList: Assignment[] = [];
+    let updatedWorkOrders = [...workOrders];
+    let alertMessages: string[] = [];
 
-    const wo = workOrders.find(w => w.id === manualWoId);
-    if (!wo) return;
-
-    // Check conflict
-    const personAssignments = assignments.filter(a => a.personnelId === manualPersonId && a.date === manualDate);
-    
-    // Find next available start hour starting at 8:00
-    let startHour = 8;
-    let conflict = false;
-
-    do {
-      conflict = personAssignments.some(a => {
-        const start = a.startHour;
-        const end = a.startHour + a.duration;
-        const proposedEnd = startHour + wo.duration;
-        return startHour < end && proposedEnd > start;
-      });
-
-      if (conflict) {
-        startHour++;
+    for (const personId of selectedPersonnelIds) {
+      if (isPersonOnLeave(personId, manualDate)) {
+        const pName = personnel.find(p => p.id === personId)?.name || personId;
+        alertMessages.push(`⚠️ ${pName} seçilen tarihte (${manualDate}) izinlidir! İzinli günlerde planlama yapılamaz.`);
+        continue;
       }
-    } while (conflict && startHour < 18);
 
-    if (startHour + wo.duration > 20) {
-      alert("⚠️ Bu tarihte personelin çalışma saatlerinde (08:00 - 20:00) yeterli boş alan bulunmamaktadır.");
-      return;
+      // Get current assignments for this person on this date
+      const personAssignments = [
+        ...assignments.filter(a => a.personnelId === personId && a.date === manualDate),
+        ...newAssignmentsList.filter(a => a.personnelId === personId && a.date === manualDate)
+      ];
+
+      for (const woId of selectedPlanWoIds) {
+        const wo = workOrders.find(w => w.id === woId);
+        if (!wo) continue;
+
+        // Find next available start hour starting at 8:00
+        let startHour = 8;
+        let conflict = false;
+
+        do {
+          conflict = personAssignments.some(a => {
+            const start = a.startHour;
+            const end = a.startHour + a.duration;
+            const proposedEnd = startHour + wo.duration;
+            return startHour < end && proposedEnd > start;
+          });
+
+          if (conflict) {
+            startHour++;
+          }
+        } while (conflict && startHour < 18);
+
+        if (startHour + wo.duration > 20) {
+          const pName = personnel.find(p => p.id === personId)?.name || personId;
+          alertMessages.push(`⚠️ ${pName} için "${wo.title}" işinin çalışma saatlerinde (08:00 - 20:00) yeterli boş alan bulunmamaktadır.`);
+          continue;
+        }
+
+        const newAssignment: Assignment = {
+          id: `A${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+          workOrderId: wo.id,
+          personnelId: personId,
+          date: manualDate,
+          startHour: startHour,
+          duration: wo.duration,
+          status: 'confirmed',
+          title: wo.title,
+          priority: wo.priority,
+          equipment: wo.equipment
+        };
+
+        newAssignmentsList.push(newAssignment);
+        personAssignments.push(newAssignment);
+
+        updatedWorkOrders = updatedWorkOrders.map(w => 
+          w.id === wo.id 
+            ? { ...w, status: 'assigned', assignedTo: personId, plannedDate: manualDate, startHour }
+            : w
+        );
+      }
     }
 
-    const newAssignment: Assignment = {
-      id: `A${Date.now()}`,
-      workOrderId: wo.id,
-      personnelId: manualPersonId,
-      date: manualDate,
-      startHour: startHour,
-      duration: wo.duration,
-      status: 'confirmed',
-      title: wo.title,
-      priority: wo.priority,
-      equipment: wo.equipment
-    };
+    if (alertMessages.length > 0) {
+      alert(alertMessages.join('\n'));
+    }
 
-    setAssignments([...assignments, newAssignment]);
-    setWorkOrders(workOrders.map(w => 
-      w.id === wo.id 
-        ? { ...w, status: 'assigned', assignedTo: manualPersonId, plannedDate: manualDate, startHour }
-        : w
-    ));
-
-    setIsManualDialogOpen(false);
-    setSelectedPlanWoIds([]);
-    alert(`👍 "${wo.title}" iş emri manuel olarak atandı.`);
+    if (newAssignmentsList.length > 0) {
+      setAssignments([...assignments, ...newAssignmentsList]);
+      setWorkOrders(updatedWorkOrders);
+      setIsManualDialogOpen(false);
+      setSelectedPlanWoIds([]);
+      setSelectedPersonnelIds([]);
+      alert(`👍 Seçilen işler başarıyla atandı.`);
+    }
   };
 
   // Multi select toggle helpers
@@ -1048,7 +1111,7 @@ export default function PlanningPage({
                 <Button 
                   design="Default" 
                   icon="employee"
-                  disabled={selectedPlanWoIds.length !== 1 || selectedPersonnelIds.length !== 1}
+                  disabled={selectedPlanWoIds.length === 0 || selectedPersonnelIds.length === 0}
                   onClick={handleOpenManualDialog}
                 >
                   Manuel Ata
@@ -1475,13 +1538,23 @@ export default function PlanningPage({
             </MessageStrip>
             
             <div className="form-group">
-              <Label>İş Emri</Label>
-              <Input value={workOrders.find(w => w.id === manualWoId)?.title || ''} disabled />
+              <Label>Seçilen İş Emirleri ({selectedPlanWoIds.length})</Label>
+              <div style={{ maxHeight: '100px', overflowY: 'auto', border: '1px solid var(--sapList_BorderColor)', borderRadius: '4px', padding: '8px', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+                {selectedPlanWoIds.map(id => {
+                  const wo = workOrders.find(w => w.id === id);
+                  return <div key={id} style={{ fontSize: '0.8rem', padding: '2px 0' }}>• {wo?.title || id}</div>;
+                })}
+              </div>
             </div>
 
             <div className="form-group">
-              <Label>Personel</Label>
-              <Input value={personnel.find(p => p.id === manualPersonId)?.name || ''} disabled />
+              <Label>Seçilen Personel ({selectedPersonnelIds.length})</Label>
+              <div style={{ maxHeight: '100px', overflowY: 'auto', border: '1px solid var(--sapList_BorderColor)', borderRadius: '4px', padding: '8px', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+                {selectedPersonnelIds.map(id => {
+                  const p = personnel.find(x => x.id === id);
+                  return <div key={id} style={{ fontSize: '0.8rem', padding: '2px 0' }}>• {p?.name || id}</div>;
+                })}
+              </div>
             </div>
 
             <div className="form-group">
@@ -1491,7 +1564,10 @@ export default function PlanningPage({
                 style={{ width: '100%' }}
               >
                 {activeCalendarDays
-                  .filter(dayStr => manualPersonId ? !isPersonOnLeave(manualPersonId, dayStr) : true)
+                  .filter(dayStr => {
+                    // Show date if at least one selected person is not on leave
+                    return selectedPersonnelIds.some(pid => !isPersonOnLeave(pid, dayStr));
+                  })
                   .map(dayStr => (
                     <Option 
                       key={dayStr} 

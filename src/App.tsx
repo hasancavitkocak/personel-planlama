@@ -53,6 +53,31 @@ function App() {
   const [calendars, setCalendars] = useState<PlanningCalendar[]>(initialCalendars);
   const [leaveRecords] = useState<LeaveRecord[]>(initialLeaveRecords);
   const [activeCalendarId, setActiveCalendarId] = useState<string | null>(initialCalendars[0]?.id || null);
+  const [customCapacities, setCustomCapacities] = useState<Record<string, number>>({
+    P001: 58,
+    P002: 43,
+    P003: 42,
+    P004: 58,
+    P005: 58,
+    P006: 58
+  });
+  const [busyPeriods, setBusyPeriods] = useState<Array<{ start: string; end: string }>>([
+    { start: '2026-09-01', end: '2026-09-30' },
+    { start: '2026-12-15', end: '2026-12-31' }
+  ]);
+  const [planningRules, setPlanningRules] = useState({
+    ruleMergeHolidays: true,
+    ruleConsiderWeekends: true,
+    ruleMaxTeamMembers: true,
+    ruleMaxTeamMembersVal: 2,
+    ruleMinInterval: true,
+    ruleMinIntervalVal: 30,
+    rulePrioritizeDevir: true,
+    ruleMinBlocks: true,
+    rulePreferBayram: true,
+    distributionType: 'SYSTEM' as 'ONCE' | 'TWICE' | 'THRICE' | 'SYSTEM',
+    planTarget: 'ALL' as 'ALL' | 'LEFT_20' | 'DEVIR' | 'SELECTED'
+  });
 
 
   const handleCreateWorkOrder = () => {
@@ -183,7 +208,14 @@ function App() {
         return (
           <div className="main-content">
             <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
-            <ReportsPage workOrders={workOrders} assignments={assignments} personnel={personnelList} calendars={calendars} />
+            <ReportsPage
+              workOrders={workOrders}
+              assignments={assignments}
+              personnel={personnelList}
+              calendars={calendars}
+              activeCalendarId={activeCalendarId}
+              customCapacities={customCapacities}
+            />
           </div>
         );
       case 'settings':
@@ -206,6 +238,14 @@ function App() {
               calendars={calendars}
               setCalendars={setCalendars}
               leaveRecords={leaveRecords}
+              activeCalendarId={activeCalendarId}
+              setActiveCalendarId={setActiveCalendarId}
+              customCapacities={customCapacities}
+              setCustomCapacities={setCustomCapacities}
+              busyPeriods={busyPeriods}
+              setBusyPeriods={setBusyPeriods}
+              planningRules={planningRules}
+              setPlanningRules={setPlanningRules}
             />
           </div>
         );
