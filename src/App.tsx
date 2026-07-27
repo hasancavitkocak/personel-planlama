@@ -3,7 +3,6 @@ import type { WorkOrder, Assignment, Personnel, User, PlanningCalendar, LeaveRec
 import { currentUser, personnel as initialPersonnel, initialWorkOrders, initialAssignments, initialLeaveRecords, initialCalendars } from './data/mockData';
 import NavRail, { type Page } from './components/NavRail';
 import Sidebar from './components/Sidebar';
-import TopBar from './components/TopBar';
 import Calendar from './components/Calendar';
 import WorkOrderModal from './components/WorkOrderModal';
 import PersonnelPage from './components/PersonnelPage';
@@ -153,7 +152,7 @@ function App() {
     switch (activePage) {
       case 'calendar':
         return (
-          <>
+          <div style={{ display: 'flex', flex: 1, overflow: 'hidden', width: '100%' }}>
             <Sidebar
               user={user}
               workOrders={workOrders}
@@ -164,7 +163,6 @@ function App() {
               calendars={calendars}
             />
             <div className="main-content">
-              <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
               <Calendar
                 personnel={personnelList}
                 assignments={assignments}
@@ -177,17 +175,15 @@ function App() {
                 onActiveCalendarChange={setActiveCalendarId}
               />
             </div>
-          </>
+          </div>
         );
       case 'workorders':
         return (
           <div className="main-content">
-            <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
             <WorkOrdersPage
               workOrders={workOrders}
               assignments={assignments}
               personnel={personnelList}
-              onCreateWorkOrder={handleCreateWorkOrder}
               onRemoveAssignment={handleRemoveAssignment}
             />
           </div>
@@ -195,7 +191,6 @@ function App() {
       case 'personnel':
         return (
           <div className="main-content">
-            <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
             <PersonnelPage
               personnel={personnelList}
               onAdd={p => setPersonnelList(prev => [...prev, p])}
@@ -207,7 +202,6 @@ function App() {
       case 'reports':
         return (
           <div className="main-content">
-            <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
             <ReportsPage
               workOrders={workOrders}
               assignments={assignments}
@@ -222,14 +216,12 @@ function App() {
       case 'settings':
         return (
           <div className="main-content">
-            <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
             <SettingsPage user={user} onUpdateUser={setUser} />
           </div>
         );
       case 'planning':
         return (
           <div className="main-content">
-            <TopBar onCreateWorkOrder={handleCreateWorkOrder} onRefresh={() => window.location.reload()} />
             <PlanningPage
               workOrders={workOrders}
               setWorkOrders={setWorkOrders}
@@ -261,7 +253,12 @@ function App() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <NavRail activePage={activePage} onNavigate={setActivePage} />
+      <NavRail
+        activePage={activePage}
+        onNavigate={setActivePage}
+        onCreateWorkOrder={handleCreateWorkOrder}
+        onRefresh={() => window.location.reload()}
+      />
       {renderPage()}
       {isModalOpen && (
         <WorkOrderModal

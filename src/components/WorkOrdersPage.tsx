@@ -14,11 +14,10 @@ interface WorkOrdersPageProps {
   workOrders: WorkOrder[];
   assignments: Assignment[];
   personnel: Personnel[];
-  onCreateWorkOrder: () => void;
   onRemoveAssignment: (id: string) => void;
 }
 
-export default function WorkOrdersPage({ workOrders, assignments, personnel, onCreateWorkOrder, onRemoveAssignment }: WorkOrdersPageProps) {
+export default function WorkOrdersPage({ workOrders, assignments, personnel, onRemoveAssignment }: WorkOrdersPageProps) {
   const unassigned = workOrders.filter(w => w.status === 'unassigned');
   const assigned = workOrders.filter(w => w.status === 'assigned');
 
@@ -27,10 +26,6 @@ export default function WorkOrdersPage({ workOrders, assignments, personnel, onC
 
   return (
     <div className="workorders-page" style={{ backgroundColor: 'var(--sapBackgroundColor)', padding: '20px 24px', flex: 1, overflowY: 'auto' }}>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '16px' }}>
-        <Button design="Emphasized" icon="add" onClick={onCreateWorkOrder}>Yeni İş Emri</Button>
-      </div>
-
       <div className="wo-columns" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
         {/* Unassigned */}
         <div className="wo-column" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
